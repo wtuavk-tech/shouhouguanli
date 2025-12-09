@@ -651,8 +651,14 @@ const App = () => {
                     <td className="px-3 py-2 text-center font-mono text-slate-500">{formatCurrency(order.platformRefund)}</td>
 
                     {/* Fixed Columns */}
-                    <td className="px-3 py-2 text-center font-bold text-red-500 sticky-col sticky-right-alert sticky-bg-solid">
-                      {order.overtimeAlert}
+                    <td className="px-3 py-2 text-center sticky-col sticky-right-alert sticky-bg-solid align-middle">
+                      {order.status === OrderStatus.Completed ? (
+                        <span className="text-slate-400 font-medium">/</span>
+                      ) : (
+                        <div className="inline-flex items-center justify-center min-w-[32px] px-1.5 py-0.5 bg-red-600 text-white text-xs font-bold rounded animate-bounce shadow-sm mx-auto">
+                          {order.overtimeAlert}
+                        </div>
+                      )}
                     </td>
                     <td className="px-3 py-2 text-center sticky-col sticky-right-action sticky-bg-solid border-l border-gray-200">
                       <ActionCell orderId={order.id} onAction={handleAction} />
