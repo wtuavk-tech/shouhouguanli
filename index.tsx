@@ -47,7 +47,7 @@ import {
 // --- 类型定义 ---
 
 enum OrderStatus {
-  PendingDispatch = '待派单',
+  PendingDispatch = '待处理',
   Completed = '已完成',
   Void = '作废',
   Returned = '已退回',
@@ -455,8 +455,20 @@ const App = () => {
 
   const [orders, setOrders] = useState<Order[]>(FULL_MOCK_DATA);
   
-  // Sort by remainingTime ascending (shortest time first)
-  const sortedData = [...orders].sort((a, b) => a.remainingTime - b.remainingTime);
+  // Sort logic update: 
+  // 1. Priority: PendingDispatch ('待处理') at the top
+  // 2. Secondary: Remaining Time (Ascending)
+  const sortedData = [...orders].sort((a, b) => {
+    const isAPending = a.status === OrderStatus.PendingDispatch;
+    const isBPending = b.status === OrderStatus.PendingDispatch;
+    
+    // If one is pending and the other is not, pending comes first
+    if (isAPending && !isBPending) return -1;
+    if (!isAPending && isBPending) return 1;
+    
+    // If both are pending or both are not pending, sort by remaining time
+    return a.remainingTime - b.remainingTime;
+  });
 
   const totalItems = sortedData.length;
   const totalPages = Math.ceil(totalItems / pageSize);
@@ -604,16 +616,16 @@ const App = () => {
                     <td className="px-3 py-2 text-center text-slate-600">{order.isMallOrder ? '是' : '否'}</td>
                     <td className="px-3 py-2 text-slate-800 font-mono select-all">{order.orderNo}</td>
                     <td className="px-3 py-2 text-slate-800 font-bold font-mono">{order.mobile}</td>
-                    <td className="px-3 py-2 text-slate-600">{order.initiator}</td>
+                    <td className="px-3 py-2 text-slate-600 whitespace-nowrap">{order.initiator}</td>
                     <td className="px-3 py-2 text-slate-600 whitespace-nowrap">{order.createTime}</td>
                     <td className="px-3 py-2 text-slate-800 font-medium">{order.customerName}</td>
-                    <td className="px-3 py-2 text-center"><span className="px-2 py-0.5 bg-slate-100 text-slate-500 rounded border border-slate-200">{order.source}</span></td>
+                    <td className="px-3 py-2 text-center whitespace-nowrap"><span className="px-2 py-0.5 bg-slate-100 text-slate-500 rounded border border-slate-200">{order.source}</span></td>
                     <td className="px-3 py-2 text-center"><StatusCell order={order} /></td>
                     <td className="px-3 py-2 text-center font-mono text-slate-700">{formatCurrency(order.cashierPaymentAmount)}</td>
                     <td className="px-3 py-2 text-slate-600 max-w-[120px] truncate" title={order.customerRequest}>{order.customerRequest}</td>
                     <td className="px-3 py-2 text-slate-600 max-w-[120px] truncate" title={order.remark}>{order.remark || '-'}</td>
-                    <td className="px-3 py-2 text-slate-600">{order.recorderName}</td>
-                    <td className="px-3 py-2 text-slate-700 font-medium">{order.masterName}</td>
+                    <td className="px-3 py-2 text-slate-600 whitespace-nowrap">{order.recorderName}</td>
+                    <td className="px-3 py-2 text-slate-700 font-medium whitespace-nowrap">{order.masterName}</td>
                     <td className="px-3 py-2 text-center font-mono text-orange-600 font-bold">{formatCurrency(order.revenue)}</td>
                     <td className="px-3 py-2 text-slate-600">{order.responsibleParty}</td>
                     <td className="px-3 py-2 text-center font-mono text-slate-600">{formatCurrency(order.totalRefund)}</td>
