@@ -162,7 +162,7 @@ const generateMockData = (): Order[] => {
       source: sources[i % sources.length],
       status,
       cashierPaymentAmount: Math.random() > 0.5 ? amount : 0,
-      customerRequest: i % 5 === 0 ? '加急处理' : '无特殊要求',
+      customerRequest: i % 5 === 0 ? '加急处理' : '无特殊要求。此单需要特别注意客户的时间安排，请务必提前联系确认。',
       remark: i % 8 === 0 ? '客户要求下午上门' : '',
       recorderName: dispatchers[i % dispatchers.length],
       masterName: masters[i % masters.length],
@@ -405,6 +405,50 @@ const SearchPanel = () => {
 };
 
 // --- Modals & Cells ---
+
+const TooltipCell = ({ content }: { content: string }) => {
+  const [show, setShow] = useState(false);
+  const [coords, setCoords] = useState({ x: 0, y: 0 });
+  const triggerRef = useRef<HTMLDivElement>(null);
+
+  const handleMouseEnter = () => {
+    if (triggerRef.current) {
+      const rect = triggerRef.current.getBoundingClientRect();
+      setCoords({
+        x: rect.left + rect.width / 2,
+        y: rect.top
+      });
+      setShow(true);
+    }
+  };
+
+  return (
+    <>
+      <div 
+        ref={triggerRef}
+        className="max-w-[120px] truncate cursor-help text-slate-600 hover:text-blue-600 transition-colors" 
+        onMouseEnter={handleMouseEnter} 
+        onMouseLeave={() => setShow(false)}
+      >
+        {content}
+      </div>
+      {show && createPortal(
+        <div 
+            className="fixed z-[9999] bg-slate-800 text-white text-xs p-3 rounded-lg shadow-xl max-w-xs break-words pointer-events-none transition-all duration-200 animate-in fade-in zoom-in-95"
+            style={{ 
+              top: coords.y - 8, 
+              left: coords.x, 
+              transform: 'translate(-50%, -100%)' 
+            }}
+        >
+          {content}
+          <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-800"></div>
+        </div>,
+        document.body
+      )}
+    </>
+  );
+};
 
 const RecordOrderModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {
   return null; // Simplified for this update as requested logic is mainly table
@@ -661,7 +705,6 @@ const App = () => {
             <table className="w-full text-left border-collapse relative">
               <thead className="sticky top-0 z-40 shadow-sm">
                 <tr className="bg-slate-50 border-b-2 border-gray-300 text-xs font-bold uppercase text-slate-700 tracking-wider">
-                  <th className="px-3 py-2 whitespace-nowrap bg-slate-50 text-center sticky top-0 z-30">剩余时间(H)</th>
                   <th className="px-3 py-2 whitespace-nowrap bg-slate-50 text-center sticky top-0 z-30">商城订单</th>
                   <th className="px-3 py-2 whitespace-nowrap bg-slate-50 sticky top-0 z-30">订单号</th>
                   <th className="px-3 py-2 whitespace-nowrap bg-slate-50 sticky top-0 z-30">手机号</th>
@@ -698,14 +741,13 @@ const App = () => {
                   <th className="px-3 py-2 whitespace-nowrap bg-slate-50 text-center sticky top-0 z-30">平台退款</th>
 
                   {/* Fixed Columns */}
-                  <th className="px-3 py-2 whitespace-nowrap text-center w-[100px] sticky-th-solid sticky-col sticky-right-alert">超时提醒(H)</th>
+                  <th className="px-3 py-2 whitespace-nowrap text-center w-[120px] sticky-th-solid sticky-col sticky-right-alert">剩余/超时(H)</th>
                   <th className="px-3 py-2 whitespace-nowrap text-center w-[80px] sticky-th-solid sticky-col sticky-right-action border-l border-gray-200">操作</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-300">
                 {currentData.map((order) => (
                   <tr key={order.id} className="bg-white even:bg-blue-50 hover:!bg-blue-100 transition-colors group text-xs border-b border-gray-300 last:border-0 align-middle">
-                    <td className={`px-3 py-2 text-center font-mono ${order.remainingTime < 12 ? 'text-red-600 font-bold' : order.remainingTime < 24 ? 'text-orange-500 font-medium' : 'text-slate-600'}`}>{order.remainingTime}</td>
                     <td className="px-3 py-2 text-center text-slate-600">{order.isMallOrder ? '是' : '否'}</td>
                     <td className="px-3 py-2 text-slate-800 font-mono select-all">{order.orderNo}</td>
                     <td className="px-3 py-2 text-slate-800 font-bold font-mono">{order.mobile}</td>
@@ -715,7 +757,9 @@ const App = () => {
                     <td className="px-3 py-2 text-center whitespace-nowrap"><span className="px-2 py-0.5 bg-slate-100 text-slate-500 rounded border border-slate-200">{order.source}</span></td>
                     <td className="px-3 py-2 text-center"><StatusCell order={order} /></td>
                     <td className="px-3 py-2 text-center font-mono text-slate-700">{formatCurrency(order.cashierPaymentAmount)}</td>
-                    <td className="px-3 py-2 text-slate-600 max-w-[120px] truncate" title={order.customerRequest}>{order.customerRequest}</td>
+                    <td className="px-3 py-2 text-slate-600 max-w-[120px]">
+                      <TooltipCell content={order.customerRequest} />
+                    </td>
                     <td className="px-3 py-2 text-slate-600 max-w-[120px] truncate" title={order.remark}>{order.remark || '-'}</td>
                     <td className="px-3 py-2 text-slate-600 whitespace-nowrap">{order.recorderName}</td>
                     <td className="px-3 py-2 text-slate-700 font-medium whitespace-nowrap">{order.masterName}</td>
@@ -748,8 +792,15 @@ const App = () => {
                       {[OrderStatus.Completed, OrderStatus.Void, OrderStatus.Returned].includes(order.status) ? (
                         <span className="text-slate-400 font-medium">/</span>
                       ) : (
-                        <div className="inline-flex items-center justify-center min-w-[32px] px-1.5 py-0.5 bg-red-600 text-white text-xs font-bold rounded animate-bounce shadow-sm mx-auto">
-                          {order.overtimeAlert}
+                        <div className="flex items-center justify-center gap-1 h-8">
+                            <span className={`text-base font-mono ${order.remainingTime < 12 ? 'text-red-600 font-bold' : order.remainingTime < 24 ? 'text-orange-500 font-bold' : 'text-slate-700 font-medium'}`}>
+                              {order.remainingTime}
+                            </span>
+                            {order.overtimeAlert > 0 && (
+                              <span className="text-[10px] bg-red-100 text-red-600 border border-red-200 px-1 rounded-sm font-bold animate-pulse shadow-sm">
+                                +{order.overtimeAlert}
+                              </span>
+                            )}
                         </div>
                       )}
                     </td>
