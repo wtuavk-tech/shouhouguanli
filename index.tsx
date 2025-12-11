@@ -367,8 +367,14 @@ const SearchPanel = () => {
                     <option>请选择</option>
                   </select>
               </div>
+
+              {/* 9. 创建人 (New) */}
+              <div className="flex flex-col gap-1.5">
+                  <label className="text-xs text-slate-500 font-medium">创建人</label>
+                  <input type="text" placeholder="请输入" className="h-8 px-2 border border-slate-300 rounded text-xs focus:border-blue-500 focus:outline-none" />
+              </div>
               
-              {/* 9. 时间筛选 (Span 2 cols) */}
+              {/* 10. 时间筛选 (Span 2 cols) */}
               <div className="flex flex-col gap-1.5 col-span-2">
                    <label className="text-xs text-slate-500 font-medium">时间筛选</label>
                    <div className="flex items-center gap-0 border border-slate-300 rounded bg-white overflow-hidden h-8">
@@ -388,8 +394,8 @@ const SearchPanel = () => {
                   </div>
               </div>
               
-              {/* Buttons */}
-              <div className="flex items-end gap-2 col-span-2">
+              {/* Buttons (Compressed to col-span-1 on large screens to fit row) */}
+              <div className="flex items-end gap-2 col-span-2 lg:col-span-1">
                   <button className="h-8 px-4 bg-blue-500 hover:bg-blue-600 text-white text-xs rounded transition-colors shadow-sm font-medium flex-1 flex items-center justify-center gap-1">
                       <Search size={14} /> 搜索
                   </button>
@@ -496,74 +502,45 @@ const CompleteOrderModal = ({ isOpen, onClose, order }: { isOpen: boolean; onClo
 };
 
 const ActionCell = ({ orderId, onAction }: { orderId: number; onAction: (action: string, id: number) => void }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const buttonRef = useRef<HTMLButtonElement>(null);
-  const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (buttonRef.current && !buttonRef.current.contains(event.target as Node)) {
-        const menuElement = document.getElementById(`action-menu-${orderId}`);
-        if (menuElement && !menuElement.contains(event.target as Node)) {
-             setIsOpen(false);
-        }
-      }
-    };
-    const handleScroll = () => { if(isOpen) setIsOpen(false); }
-    document.addEventListener('mousedown', handleClickOutside);
-    window.addEventListener('scroll', handleScroll, true); 
-    return () => {
-        document.removeEventListener('mousedown', handleClickOutside);
-        window.removeEventListener('scroll', handleScroll, true);
-    };
-  }, [isOpen, orderId]);
-
-  const toggleMenu = () => {
-    if (!isOpen && buttonRef.current) {
-      const rect = buttonRef.current.getBoundingClientRect();
-      setMenuPosition({
-        top: rect.bottom + 5,
-        left: rect.right - 128
-      });
-    }
-    setIsOpen(!isOpen);
-  };
-
-  const handleActionClick = (actionName: string) => {
-    setIsOpen(false);
-    onAction(actionName, orderId);
-  };
-
-  const menuItems = [
-    { name: '复制订单', icon: Copy, color: 'text-gray-600' },
-    { name: '开票', icon: FileText, color: 'text-blue-600' },
-    { name: '完单', icon: CheckCircle, color: 'text-green-600' },
-    { name: '详情', icon: Info, color: 'text-gray-600' },
-    { name: '查资源', icon: Search, color: 'text-purple-600' },
-    { name: '添加报错', icon: AlertTriangle, color: 'text-orange-600' },
-    { name: '作废', icon: Trash2, color: 'text-red-600' },
-    { name: '其他收款', icon: DollarSign, color: 'text-teal-600' },
-  ];
-
   return (
-    <>
-      <button ref={buttonRef} onClick={toggleMenu} className={`px-2 py-1 rounded text-[10px] font-medium transition-all flex items-center justify-center gap-0.5 border ${isOpen ? 'bg-blue-600 text-white border-blue-600 shadow-sm' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:text-blue-600 hover:border-blue-300'}`}>
-        操作 <ChevronDown size={10} className={`transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
-      </button>
-      {isOpen && createPortal(
-        <div id={`action-menu-${orderId}`} className="fixed z-[9999] bg-white rounded-lg shadow-xl border border-gray-200 overflow-hidden animate-in fade-in zoom-in-95 duration-100 w-32" style={{ top: menuPosition.top, left: menuPosition.left }}>
-          <div className="py-1">
-            {menuItems.map((item, index) => (
-              <button key={index} onClick={() => handleActionClick(item.name)} className="w-full text-left px-3 py-2 text-xs flex items-center hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0 group">
-                <item.icon size={13} className={`mr-2 transition-transform group-hover:scale-110 ${item.color}`} />
-                <span className="text-gray-700 font-medium">{item.name}</span>
-              </button>
-            ))}
-          </div>
-        </div>,
-        document.body
-      )}
-    </>
+    <div className="flex items-center justify-center gap-2">
+        <button 
+          onClick={() => onAction('修改', orderId)} 
+          className="text-xs text-blue-500 hover:text-blue-700 whitespace-nowrap"
+        >
+          修改
+        </button>
+        <button 
+          onClick={() => onAction('详情', orderId)} 
+          className="text-xs text-blue-500 hover:text-blue-700 whitespace-nowrap"
+        >
+          详情
+        </button>
+        <button 
+          onClick={() => onAction('处理中', orderId)} 
+          className="text-xs text-blue-500 hover:text-blue-700 whitespace-nowrap"
+        >
+          处理中
+        </button>
+        <button 
+          onClick={() => onAction('完结', orderId)} 
+          className="text-xs text-blue-500 hover:text-blue-700 whitespace-nowrap"
+        >
+          完结
+        </button>
+        <button 
+          onClick={() => onAction('复制', orderId)} 
+          className="text-xs text-blue-500 hover:text-blue-700 whitespace-nowrap"
+        >
+          复制
+        </button>
+        <button 
+          onClick={() => onAction('作废', orderId)} 
+          className="text-xs text-red-500 hover:text-red-700 whitespace-nowrap"
+        >
+          作废
+        </button>
+    </div>
   );
 };
 
@@ -685,9 +662,17 @@ const App = () => {
         
         /* 超时提醒列 (最左边的固定列) */
         .sticky-right-alert {
-          right: 80px !important; /* Width of Action column */
+          right: 240px !important; /* Width of Action column - Updated to 240px to fit single line text links */
           border-left: 1px solid #cbd5e1 !important; /* 左侧实体分割线 */
           box-shadow: -6px 0 10px -4px rgba(0,0,0,0.15); /* 左侧投影 */
+          background-color: #38bdf8 !important; /* Sky Blue - 天蓝色背景 */
+        }
+
+        /* Ensure data cells in this column always have sky blue background, overriding even/hover stripes */
+        tr td.sticky-right-alert,
+        tr:nth-child(even) td.sticky-right-alert,
+        tr:hover td.sticky-right-alert {
+          background-color: #38bdf8 !important;
         }
         
         /* 操作列 */
@@ -708,6 +693,7 @@ const App = () => {
                   <th className="px-3 py-2 whitespace-nowrap bg-slate-50 text-center sticky top-0 z-30">商城订单</th>
                   <th className="px-3 py-2 whitespace-nowrap bg-slate-50 sticky top-0 z-30">订单号</th>
                   <th className="px-3 py-2 whitespace-nowrap bg-slate-50 sticky top-0 z-30">手机号</th>
+                  <th className="px-3 py-2 whitespace-nowrap bg-slate-50 sticky top-0 z-30">服务项目</th>
                   <th className="px-3 py-2 whitespace-nowrap bg-slate-50 sticky top-0 z-30">发起人</th>
                   <th className="px-3 py-2 whitespace-nowrap bg-slate-50 sticky top-0 z-30">创建时间</th>
                   <th className="px-3 py-2 whitespace-nowrap bg-slate-50 sticky top-0 z-30">客户名称</th>
@@ -735,14 +721,11 @@ const App = () => {
                   <th className="px-3 py-2 whitespace-nowrap bg-slate-50 sticky top-0 z-30 max-w-[150px]">完结说明</th>
                   <th className="px-3 py-2 whitespace-nowrap bg-slate-50 sticky top-0 z-30">作废人</th>
                   <th className="px-3 py-2 whitespace-nowrap bg-slate-50 sticky top-0 z-30">作废原因</th>
-                  <th className="px-3 py-2 whitespace-nowrap bg-slate-50 sticky top-0 z-30">师傅退款时间</th>
-                  <th className="px-3 py-2 whitespace-nowrap bg-slate-50 sticky top-0 z-30">公司退款时间</th>
-                  <th className="px-3 py-2 whitespace-nowrap bg-slate-50 sticky top-0 z-30">师傅成本时间</th>
-                  <th className="px-3 py-2 whitespace-nowrap bg-slate-50 text-center sticky top-0 z-30">平台退款</th>
+                  {/* REMOVED: 师傅退款时间, 公司退款时间, 师傅成本时间, 平台退款 */}
 
                   {/* Fixed Columns */}
                   <th className="px-3 py-2 whitespace-nowrap text-center w-[120px] sticky-th-solid sticky-col sticky-right-alert">剩余/超时(H)</th>
-                  <th className="px-3 py-2 whitespace-nowrap text-center w-[80px] sticky-th-solid sticky-col sticky-right-action border-l border-gray-200">操作</th>
+                  <th className="px-3 py-2 whitespace-nowrap text-center w-[240px] sticky-th-solid sticky-col sticky-right-action border-l border-gray-200">操作</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-300">
@@ -751,6 +734,7 @@ const App = () => {
                     <td className="px-3 py-2 text-center text-slate-600">{order.isMallOrder ? '是' : '否'}</td>
                     <td className="px-3 py-2 text-slate-800 font-mono select-all">{order.orderNo}</td>
                     <td className="px-3 py-2 text-slate-800 font-bold font-mono">{order.mobile}</td>
+                    <td className="px-3 py-2 text-slate-600 whitespace-nowrap">{order.serviceItem}</td>
                     <td className="px-3 py-2 text-slate-600 whitespace-nowrap">{order.initiator}</td>
                     <td className="px-3 py-2 text-slate-600 whitespace-nowrap">{order.createTime}</td>
                     <td className="px-3 py-2 text-slate-800 font-medium">{order.customerName}</td>
@@ -782,22 +766,19 @@ const App = () => {
                     <td className="px-3 py-2 text-slate-500 max-w-[150px] truncate" title={order.completionNote}>{order.completionNote || '-'}</td>
                     <td className="px-3 py-2 text-slate-500">{order.voiderName}</td>
                     <td className="px-3 py-2 text-slate-500">{order.voidReason}</td>
-                    <td className="px-3 py-2 text-slate-500 whitespace-nowrap">{order.masterRefundTime}</td>
-                    <td className="px-3 py-2 text-slate-500 whitespace-nowrap">{order.companyRefundTime}</td>
-                    <td className="px-3 py-2 text-slate-500 whitespace-nowrap">{order.masterCostTime}</td>
-                    <td className="px-3 py-2 text-center font-mono text-slate-500">{formatCurrency(order.platformRefund)}</td>
+                    {/* REMOVED: 师傅退款时间, 公司退款时间, 师傅成本时间, 平台退款 */}
 
                     {/* Fixed Columns */}
-                    <td className="px-3 py-2 text-center sticky-col sticky-right-alert sticky-bg-solid align-middle">
+                    <td className="px-3 py-2 text-center sticky-col sticky-right-alert align-middle">
                       {[OrderStatus.Completed, OrderStatus.Void, OrderStatus.Returned].includes(order.status) ? (
-                        <span className="text-slate-400 font-medium">/</span>
+                        <span className="text-white/70 font-medium">/</span>
                       ) : (
                         <div className="flex items-center justify-center gap-1 h-8">
-                            <span className={`text-base font-mono ${order.remainingTime < 12 ? 'text-red-600 font-bold' : order.remainingTime < 24 ? 'text-orange-500 font-bold' : 'text-slate-700 font-medium'}`}>
+                            <span className="text-base font-mono font-bold text-white">
                               {order.remainingTime}
                             </span>
                             {order.overtimeAlert > 0 && (
-                              <span className="text-[10px] bg-red-100 text-red-600 border border-red-200 px-1 rounded-sm font-bold animate-pulse shadow-sm">
+                              <span className="ml-1 px-1 border border-yellow-300 rounded text-[13px] font-extrabold text-yellow-300 animate-pulse">
                                 +{order.overtimeAlert}
                               </span>
                             )}
