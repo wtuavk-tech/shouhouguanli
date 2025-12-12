@@ -41,7 +41,11 @@ import {
   Tag,
   Eye,
   Phone,
-  Image
+  Image,
+  PauseCircle,
+  Archive,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 
 // --- 类型定义 ---
@@ -59,10 +63,12 @@ interface Order {
   // --- New Fields Layout ---
   remainingTime: number;         // 剩余时间（小时）
   isMallOrder: boolean;          // 商城订单
-  orderNo: string;               // 订单号
+  orderNo: string;               // 订单号 (工单号)
+  originalOrderNo: string;       // 原始订单号 (New)
   mobile: string;                // 手机号
   initiator: string;             // 发起人
   createTime: string;            // 创建时间
+  orderTime: string;             // 订单时间 (New)
   customerName: string;          // 客户名称
   source: string;                // 订单来源
   status: OrderStatus;           // 状态
@@ -93,6 +99,7 @@ interface Order {
   masterCostTime: string;        // 师傅成本时间
   platformRefund: number;        // 平台退款
   overtimeAlert: number;         // 超时提醒（小时）
+  isSuspended: boolean;          // 是否挂起 (New)
   
   // Legacy fields kept for compatibility with existing modals/logic if needed, 
   // though they might not be shown in the table anymore.
@@ -147,6 +154,7 @@ const generateMockData = (): Order[] => {
     // Random dates
     const now = new Date();
     const createDate = new Date(now.getTime() - Math.random() * 86400000 * 5);
+    const orderDate = new Date(createDate.getTime() - Math.random() * 3600000 * 4); // Order time is 0-4 hours before create time
     const completeDate = new Date(createDate.getTime() + Math.random() * 86400000);
     const refundDate = new Date(completeDate.getTime() + Math.random() * 86400000);
 
@@ -155,9 +163,11 @@ const generateMockData = (): Order[] => {
       remainingTime: Math.floor(Math.random() * 48),
       isMallOrder: Math.random() > 0.8,
       orderNo: `ORD-${20230000 + i}`,
+      originalOrderNo: `ORI-${String(90000000 + i)}`,
       mobile: `13${i % 9 + 1}****${String(1000 + i).slice(-4)}`,
       initiator: initiators[i % initiators.length],
       createTime: formatDate(createDate),
+      orderTime: formatDate(orderDate),
       customerName: names[i % names.length],
       source: sources[i % sources.length],
       status,
@@ -188,6 +198,7 @@ const generateMockData = (): Order[] => {
       masterCostTime: formatDate(completeDate),
       platformRefund: i % 50 === 0 ? 10 : 0,
       overtimeAlert: parseFloat((Math.random() * 24).toFixed(1)),
+      isSuspended: Math.random() < 0.05, // 5% chance of being suspended initially
       
       // Legacy
       totalAmount: amount,
@@ -235,7 +246,7 @@ const NotificationBar = () => {
 };
 
 // --- 重构：SearchPanel (数据概览 + 高级筛选) ---
-const SearchPanel = () => {
+const SearchPanel = ({ suspendedCount }: { suspendedCount: number }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
   // Mock stats for the overview
@@ -243,6 +254,7 @@ const SearchPanel = () => {
   const processedCount = FULL_MOCK_DATA.filter(o => o.status === OrderStatus.Completed).length;
   
   // Calculate new metrics
+  const pending24h = Math.floor(pendingCount * 0.75); // Mock derived
   const pending48h = Math.floor(pendingCount * 0.45); // Mock derived
   const pending72h = Math.floor(pendingCount * 0.2); // Mock derived
   const overtimeCount = FULL_MOCK_DATA.filter(o => o.overtimeAlert > 0 && ![OrderStatus.Completed, OrderStatus.Void, OrderStatus.Returned].includes(o.status)).length;
@@ -255,6 +267,7 @@ const SearchPanel = () => {
     refundTodayAmount: 450.5,
     lastWeekRate: '98.5%',
     processed24h: 42,
+    pending24h,
     pending48h,
     pending72h,
     overtimeCount
@@ -286,6 +299,10 @@ const SearchPanel = () => {
                <div className="flex flex-col sm:flex-row sm:items-baseline gap-1.5">
                   <span className="text-slate-500 font-medium">待处理</span>
                   <span className="font-bold text-orange-600 text-xl">{stats.pending}</span>
+               </div>
+               <div className="flex flex-col sm:flex-row sm:items-baseline gap-1.5">
+                  <span className="text-slate-500 font-medium">24h待处理</span>
+                  <span className="font-bold text-orange-600 text-xl">{stats.pending24h}</span>
                </div>
                <div className="flex flex-col sm:flex-row sm:items-baseline gap-1.5">
                   <span className="text-slate-500 font-medium">48h待处理</span>
@@ -533,44 +550,38 @@ const CompleteOrderModal = ({ isOpen, onClose, order }: { isOpen: boolean; onClo
   );
 };
 
-const ActionCell = ({ orderId, onAction }: { orderId: number; onAction: (action: string, id: number) => void }) => {
+const ActionCell = ({ order, onAction }: { order: Order; onAction: (action: string, id: number) => void }) => {
   return (
     <div className="flex items-center justify-center gap-2">
         <button 
-          onClick={() => onAction('修改', orderId)} 
+          onClick={() => onAction('修改', order.id)} 
           className="text-xs text-blue-500 hover:text-blue-700 whitespace-nowrap"
         >
           修改
         </button>
         <button 
-          onClick={() => onAction('详情', orderId)} 
-          className="text-xs text-blue-500 hover:text-blue-700 whitespace-nowrap"
-        >
-          详情
-        </button>
-        <button 
-          onClick={() => onAction('处理中', orderId)} 
-          className="text-xs text-blue-500 hover:text-blue-700 whitespace-nowrap"
-        >
-          处理中
-        </button>
-        <button 
-          onClick={() => onAction('完结', orderId)} 
+          onClick={() => onAction('完结', order.id)} 
           className="text-xs text-blue-500 hover:text-blue-700 whitespace-nowrap"
         >
           完结
         </button>
         <button 
-          onClick={() => onAction('复制', orderId)} 
+          onClick={() => onAction('复制', order.id)} 
           className="text-xs text-blue-500 hover:text-blue-700 whitespace-nowrap"
         >
           复制
         </button>
         <button 
-          onClick={() => onAction('作废', orderId)} 
+          onClick={() => onAction('作废', order.id)} 
           className="text-xs text-red-500 hover:text-red-700 whitespace-nowrap"
         >
           作废
+        </button>
+        <button 
+          onClick={() => onAction('挂起', order.id)} 
+          className={`text-xs whitespace-nowrap ${order.isSuspended ? 'text-orange-600 font-bold' : 'text-slate-500 hover:text-orange-500'}`}
+        >
+          {order.isSuspended ? '已挂起' : '挂起'}
         </button>
     </div>
   );
@@ -580,14 +591,15 @@ const App = () => {
   const [completeModalOpen, setCompleteModalOpen] = useState(false);
   const [currentOrder, setCurrentOrder] = useState<Order | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 20; 
+  const [pageSize, setPageSize] = useState(20);
+  const [showSuspendedOnly, setShowSuspendedOnly] = useState(false); // New state for filtering
 
   const [orders, setOrders] = useState<Order[]>(FULL_MOCK_DATA);
   
-  // Sort logic update: 
-  // 1. Priority: Overtime Alert (Descending) - Active orders with high overtime first
-  // 2. Secondary: PendingDispatch
-  // 3. Tertiary: Remaining Time
+  // Calculate suspended count dynamically
+  const suspendedCount = orders.filter(o => o.isSuspended).length;
+
+  // Sort logic
   const sortedData = [...orders].sort((a, b) => {
     // Helper: Completed/Void/Returned are inactive, treat as lowest priority for overtime
     const isInactive = (status: OrderStatus) => 
@@ -605,7 +617,7 @@ const App = () => {
       return bOvertime - aOvertime;
     }
     
-    // 2. Pending Status Priority (for ties in overtime, e.g. both 0 or both inactive)
+    // 2. Pending Status Priority
     const isAPending = a.status === OrderStatus.PendingDispatch;
     const isBPending = b.status === OrderStatus.PendingDispatch;
     
@@ -616,11 +628,21 @@ const App = () => {
     return a.remainingTime - b.remainingTime;
   });
 
-  const totalItems = sortedData.length;
+  // Filter Data based on showSuspendedOnly
+  const displayData = showSuspendedOnly 
+      ? sortedData.filter(o => o.isSuspended) 
+      : sortedData;
+
+  const totalItems = displayData.length;
   const totalPages = Math.ceil(totalItems / pageSize);
-  const currentData = sortedData.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+  const currentData = displayData.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   const handleAction = (action: string, id: number) => {
+    if (action === '挂起') {
+      setOrders(prev => prev.map(o => o.id === id ? { ...o, isSuspended: !o.isSuspended } : o));
+      return;
+    }
+
     const order = sortedData.find(o => o.id === id);
     if (!order) return;
     if (action === '完单') { setCurrentOrder(order); setCompleteModalOpen(true); } 
@@ -628,7 +650,13 @@ const App = () => {
   };
 
   const handleNextPage = () => { if (currentPage < totalPages) setCurrentPage(prev => prev + 1); };
-  const handlePrevPage = () => { if (currentPage > 1) setCurrentPage(prev => prev + 1); };
+  const handlePrevPage = () => { if (currentPage > 1) setCurrentPage(prev => prev - 1); };
+  const handlePageChange = (p: number) => { if(p >= 1 && p <= totalPages) setCurrentPage(p); }
+
+  // Reset page when filter changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [showSuspendedOnly]);
 
   // Helper to render image icon state
   const ImageState = ({ hasImage }: { hasImage: boolean }) => (
@@ -637,8 +665,46 @@ const App = () => {
       : <div className="flex justify-center text-gray-300">-</div>
   );
 
+  // Pagination Logic
+  const renderPagination = () => {
+    const range = [];
+    // Always show 1
+    // Show last
+    // Show current +/- range
+    
+    if (totalPages <= 7) {
+        for(let i=1; i<=totalPages; i++) range.push(i);
+    } else {
+        range.push(1);
+        if (currentPage > 4) range.push('...');
+        
+        let start = Math.max(2, currentPage - 2);
+        let end = Math.min(totalPages - 1, currentPage + 2);
+        
+        // Adjust if close to ends
+        if (currentPage <= 4) {
+            end = 6;
+            start = 2;
+        } else if (currentPage >= totalPages - 3) {
+            start = totalPages - 5;
+            end = totalPages - 1;
+        }
+        
+        for (let i = start; i <= end; i++) {
+            range.push(i);
+        }
+        
+        if (currentPage < totalPages - 3) range.push('...');
+        range.push(totalPages);
+    }
+    
+    return range;
+  };
+  
+  const paginationRange = renderPagination();
+
   return (
-    <div className="h-screen bg-gradient-to-br from-slate-200 to-slate-300 p-6 flex flex-col overflow-hidden">
+    <div className="h-screen bg-gradient-to-br from-slate-200 to-slate-300 p-6 flex flex-col overflow-hidden relative">
       <style>{`
         /* 
          * 核心优化：强制覆盖表格层级和背景，解决右侧固定列穿插问题
@@ -715,7 +781,7 @@ const App = () => {
       <div className="max-w-[1800px] mx-auto w-full flex-1 flex flex-col h-full">
         
         <NotificationBar />
-        <SearchPanel />
+        <SearchPanel suspendedCount={suspendedCount} />
         
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 flex-1 flex flex-col overflow-hidden min-h-0">
           <div className="overflow-x-auto flex-1 overflow-y-auto relative">
@@ -723,11 +789,11 @@ const App = () => {
               <thead className="sticky top-0 z-40 shadow-sm">
                 <tr className="bg-slate-50 border-b-2 border-gray-300 text-xs font-bold uppercase text-slate-700 tracking-wider">
                   <th className="px-3 py-2 whitespace-nowrap bg-slate-50 text-center sticky top-0 z-30">商城订单</th>
-                  <th className="px-3 py-2 whitespace-nowrap bg-slate-50 sticky top-0 z-30">订单号</th>
+                  <th className="px-3 py-2 whitespace-nowrap bg-slate-50 sticky top-0 z-30 min-w-[180px]">工单号/订单号</th>
                   <th className="px-3 py-2 whitespace-nowrap bg-slate-50 sticky top-0 z-30">手机号</th>
                   <th className="px-3 py-2 whitespace-nowrap bg-slate-50 sticky top-0 z-30">服务项目</th>
                   <th className="px-3 py-2 whitespace-nowrap bg-slate-50 sticky top-0 z-30">发起人</th>
-                  <th className="px-3 py-2 whitespace-nowrap bg-slate-50 sticky top-0 z-30">创建时间</th>
+                  <th className="px-3 py-2 whitespace-nowrap bg-slate-50 sticky top-0 z-30 min-w-[120px]">订单/创建时间</th>
                   <th className="px-3 py-2 whitespace-nowrap bg-slate-50 sticky top-0 z-30">客户名称</th>
                   <th className="px-3 py-2 whitespace-nowrap bg-slate-50 sticky top-0 z-30">订单来源</th>
                   <th className="px-3 py-2 whitespace-nowrap bg-slate-50 text-center sticky top-0 z-30">状态</th>
@@ -764,11 +830,27 @@ const App = () => {
                 {currentData.map((order) => (
                   <tr key={order.id} className="bg-white even:bg-blue-50 hover:!bg-blue-100 transition-colors group text-xs border-b border-gray-300 last:border-0 align-middle">
                     <td className="px-3 py-2 text-center text-slate-600">{order.isMallOrder ? '是' : '否'}</td>
-                    <td className="px-3 py-2 text-slate-800 font-mono select-all">{order.orderNo}</td>
+                    <td className="px-3 py-2">
+                      <div className="flex flex-col gap-0.5">
+                        <span className="font-bold text-slate-800 font-mono text-xs select-all">{order.orderNo}</span>
+                        <div className="flex items-center gap-1">
+                          <span className="text-slate-500 font-mono text-[10px] select-all">{order.originalOrderNo}</span>
+                          <span className="text-[10px] text-blue-500 hover:text-blue-700 cursor-pointer underline hover:no-underline whitespace-nowrap">跳转原始单详情</span>
+                        </div>
+                      </div>
+                    </td>
                     <td className="px-3 py-2 text-slate-800 font-bold font-mono">{order.mobile}</td>
                     <td className="px-3 py-2 text-slate-600 whitespace-nowrap">{order.serviceItem}</td>
                     <td className="px-3 py-2 text-slate-600 whitespace-nowrap">{order.initiator}</td>
-                    <td className="px-3 py-2 text-slate-600 whitespace-nowrap">{order.createTime}</td>
+                    
+                    {/* Updated Order/Create Time Column */}
+                    <td className="px-3 py-2 whitespace-nowrap">
+                        <div className="flex flex-col">
+                            <span className="text-slate-800 font-medium">{order.orderTime}</span>
+                            <span className="text-slate-400 text-[10px] mt-0.5">{order.createTime}</span>
+                        </div>
+                    </td>
+                    
                     <td className="px-3 py-2 text-slate-800 font-medium">{order.customerName}</td>
                     <td className="px-3 py-2 text-center whitespace-nowrap"><span className="px-2 py-0.5 bg-slate-100 text-slate-500 rounded border border-slate-200">{order.source}</span></td>
                     <td className="px-3 py-2 text-center"><StatusCell order={order} /></td>
@@ -798,7 +880,6 @@ const App = () => {
                     <td className="px-3 py-2 text-slate-500 max-w-[150px] truncate" title={order.completionNote}>{order.completionNote || '-'}</td>
                     <td className="px-3 py-2 text-slate-500">{order.voiderName}</td>
                     <td className="px-3 py-2 text-slate-500">{order.voidReason}</td>
-                    {/* REMOVED: 师傅退款时间, 公司退款时间, 师傅成本时间, 平台退款 */}
 
                     {/* Fixed Columns */}
                     <td className="px-3 py-2 text-center sticky-col sticky-right-alert align-middle">
@@ -818,23 +899,109 @@ const App = () => {
                       )}
                     </td>
                     <td className="px-3 py-2 text-center sticky-col sticky-right-action sticky-bg-solid border-l border-gray-200">
-                      <ActionCell orderId={order.id} onAction={handleAction} />
+                      <ActionCell order={order} onAction={handleAction} />
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-          <div className="bg-white px-6 py-3 border-t border-gray-200 flex justify-between items-center mt-auto">
-             <span className="text-xs text-slate-500 font-medium">显示 {((currentPage - 1) * pageSize) + 1} 到 {Math.min(currentPage * pageSize, totalItems)} 条，共 {totalItems} 条订单</span>
-             <div className="flex gap-1.5">
-               <button onClick={handlePrevPage} disabled={currentPage === 1} className="px-3 py-1 border border-slate-200 rounded-md bg-white text-slate-600 text-xs hover:bg-slate-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium shadow-sm">上一页</button>
-               <button className="px-3 py-1 border border-blue-600 rounded-md bg-blue-600 text-white text-xs font-bold shadow-md">{currentPage}</button>
-               <button onClick={handleNextPage} disabled={currentPage === totalPages} className="px-3 py-1 border border-slate-200 rounded-md bg-white text-slate-600 text-xs hover:bg-slate-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium shadow-sm">下一页</button>
-             </div>
+          {/* New Pagination Footer */}
+          <div className="bg-white px-4 py-3 border-t border-gray-200 flex justify-center items-center mt-auto">
+             <div className="flex items-center gap-3 select-none">
+                <span className="text-sm text-slate-500">共 {totalItems} 条</span>
+                
+                <select 
+                    value={pageSize}
+                    onChange={(e) => {
+                        setPageSize(Number(e.target.value));
+                        setCurrentPage(1);
+                    }}
+                    className="border border-slate-300 rounded px-2 py-1 text-sm text-slate-600 outline-none focus:border-blue-500 cursor-pointer hover:border-blue-400"
+                >
+                    <option value={10}>10条/页</option>
+                    <option value={20}>20条/页</option>
+                    <option value={50}>50条/页</option>
+                    <option value={100}>100条/页</option>
+                </select>
+                
+                <div className="flex items-center gap-1">
+                    <button 
+                        onClick={handlePrevPage} 
+                        disabled={currentPage === 1}
+                        className="w-8 h-8 flex items-center justify-center border border-slate-300 rounded bg-white text-slate-500 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                        <ChevronLeft size={16} />
+                    </button>
+                    
+                    {paginationRange.map((page, idx) => (
+                        page === '...' ? (
+                            <span key={`dots-${idx}`} className="w-8 h-8 flex items-center justify-center text-slate-400 font-bold">···</span>
+                        ) : (
+                            <button
+                                key={page}
+                                onClick={() => handlePageChange(page as number)}
+                                className={`w-8 h-8 flex items-center justify-center border rounded text-sm font-medium transition-colors ${
+                                    currentPage === page 
+                                        ? 'bg-blue-600 border-blue-600 text-white' 
+                                        : 'border-slate-300 bg-white text-slate-600 hover:border-blue-500 hover:text-blue-500'
+                                }`}
+                            >
+                                {page}
+                            </button>
+                        )
+                    ))}
+                    
+                    <button 
+                        onClick={handleNextPage} 
+                        disabled={currentPage === totalPages}
+                        className="w-8 h-8 flex items-center justify-center border border-slate-300 rounded bg-white text-slate-500 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                        <ChevronRight size={16} />
+                    </button>
+                </div>
+                
+                <div className="flex items-center gap-2 text-sm text-slate-500 ml-2">
+                    <span>前往</span>
+                    <input 
+                        type="number" 
+                        min={1} 
+                        max={totalPages}
+                        defaultValue={currentPage}
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                                const val = parseInt(e.currentTarget.value);
+                                if (val >= 1 && val <= totalPages) setCurrentPage(val);
+                            }
+                        }}
+                        onBlur={(e) => {
+                             const val = parseInt(e.target.value);
+                             if (val >= 1 && val <= totalPages) setCurrentPage(val);
+                             else e.target.value = currentPage.toString();
+                        }}
+                        className="w-12 h-8 border border-slate-300 rounded text-center outline-none focus:border-blue-500 text-slate-700"
+                    />
+                    <span>页</span>
+                </div>
+            </div>
           </div>
         </div>
       </div>
+
+      {/* Updated Floating Suspended Filter Button */}
+      <button
+        onClick={() => setShowSuspendedOnly(!showSuspendedOnly)}
+        className={`fixed bottom-6 right-6 w-20 h-20 rounded-full shadow-xl flex flex-col items-center justify-center text-white transition-all z-[9999] active:scale-95 ${
+          showSuspendedOnly 
+            ? 'bg-orange-600 ring-4 ring-orange-200 scale-110' 
+            : 'bg-orange-500 hover:bg-orange-600 hover:scale-105'
+        }`}
+        title={showSuspendedOnly ? "显示全部订单" : "只显示挂起订单"}
+      >
+        <span className="text-[10px] font-medium opacity-90 mb-0.5 whitespace-nowrap">已挂起数</span>
+        <span className="text-2xl font-bold leading-none">{suspendedCount}</span>
+      </button>
+
       <CompleteOrderModal isOpen={completeModalOpen} onClose={() => setCompleteModalOpen(false)} order={currentOrder} />
     </div>
   );
