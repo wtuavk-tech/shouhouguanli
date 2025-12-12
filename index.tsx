@@ -552,7 +552,7 @@ const CompleteOrderModal = ({ isOpen, onClose, order }: { isOpen: boolean; onClo
 
 const ActionCell = ({ order, onAction }: { order: Order; onAction: (action: string, id: number) => void }) => {
   return (
-    <div className="flex items-center justify-center gap-2">
+    <div className="flex items-center justify-center gap-1">
         <button 
           onClick={() => onAction('修改', order.id)} 
           className="text-xs text-blue-500 hover:text-blue-700 whitespace-nowrap"
@@ -758,24 +758,35 @@ const App = () => {
 
         /* --- 4. 定位与视觉分割 --- */
         
-        /* 超时提醒列 (最左边的固定列) */
+        /* 操作列 (最右侧，基准0) -> Compacted to 170px */
+        .sticky-right-action {
+          right: 0px !important;
+          width: 170px;
+        }
+
+        /* 剩余/超时列 (中间，基准170px) -> Compacted to 100px */
         .sticky-right-alert {
-          right: 240px !important; /* Width of Action column - Updated to 240px to fit single line text links */
-          border-left: 1px solid #cbd5e1 !important; /* 左侧实体分割线 */
-          box-shadow: -6px 0 10px -4px rgba(0,0,0,0.15); /* 左侧投影 */
+          right: 170px !important; 
+          width: 100px;
+          border-left: none !important; /* 移除中间的分割线 */
+          box-shadow: none !important;  /* 移除中间的阴影 */
           background-color: #38bdf8 !important; /* Sky Blue - 天蓝色背景 */
         }
 
-        /* Ensure data cells in this column always have sky blue background, overriding even/hover stripes */
+        /* 联系人列 (最左侧固定列，基准270px) -> Adjusted to 160px */
+        .sticky-right-contact {
+          right: 270px !important; /* 170 + 100 */
+          width: 160px !important;
+          min-width: 160px !important; /* Force min width */
+          border-left: 1px solid #cbd5e1 !important; /* 阴影和边框移到这里 */
+          box-shadow: -6px 0 10px -4px rgba(0,0,0,0.15); 
+        }
+
+        /* Ensure data cells in the alert column always have sky blue background */
         tr td.sticky-right-alert,
         tr:nth-child(even) td.sticky-right-alert,
         tr:hover td.sticky-right-alert {
           background-color: #38bdf8 !important;
-        }
-        
-        /* 操作列 */
-        .sticky-right-action {
-          right: 0px !important;
         }
       `}</style>
       <div className="max-w-[1800px] mx-auto w-full flex-1 flex flex-col h-full">
@@ -821,9 +832,10 @@ const App = () => {
                   <th className="px-3 py-2 whitespace-nowrap bg-slate-50 sticky top-0 z-30">作废原因</th>
                   {/* REMOVED: 师傅退款时间, 公司退款时间, 师傅成本时间, 平台退款 */}
 
-                  {/* Fixed Columns */}
-                  <th className="px-3 py-2 whitespace-nowrap text-center w-[120px] sticky-th-solid sticky-col sticky-right-alert">剩余/超时(H)</th>
-                  <th className="px-3 py-2 whitespace-nowrap text-center w-[240px] sticky-th-solid sticky-col sticky-right-action border-l border-gray-200">操作</th>
+                  {/* Fixed Columns Group */}
+                  <th className="px-2 py-2 whitespace-nowrap bg-slate-50 sticky-th-solid sticky-col sticky-right-contact w-[160px] text-center border-l border-gray-200">联系人</th>
+                  <th className="px-3 py-2 whitespace-nowrap text-center w-[100px] sticky-th-solid sticky-col sticky-right-alert">剩余/超时(H)</th>
+                  <th className="px-3 py-2 whitespace-nowrap text-center w-[170px] sticky-th-solid sticky-col sticky-right-action border-l border-gray-200">操作</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-300">
@@ -881,7 +893,16 @@ const App = () => {
                     <td className="px-3 py-2 text-slate-500">{order.voiderName}</td>
                     <td className="px-3 py-2 text-slate-500">{order.voidReason}</td>
 
-                    {/* Fixed Columns */}
+                    {/* Fixed Columns Group */}
+                    <td className="px-2 py-2 sticky-col sticky-right-contact sticky-bg-solid border-l border-gray-200">
+                      <div className="grid grid-cols-2 gap-2 w-full">
+                        {['客服', '派单员', '运营', '群聊'].map(label => (
+                          <button key={label} className="w-full border border-slate-300 rounded px-1 py-1.5 text-[11px] text-slate-600 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-400 bg-white shadow-sm transition-all whitespace-nowrap flex items-center justify-center">
+                            {label}
+                          </button>
+                        ))}
+                      </div>
+                    </td>
                     <td className="px-3 py-2 text-center sticky-col sticky-right-alert align-middle">
                       {[OrderStatus.Completed, OrderStatus.Void, OrderStatus.Returned].includes(order.status) ? (
                         <span className="text-white/70 font-medium">/</span>
