@@ -60,7 +60,6 @@ enum OrderStatus {
 
 interface Order {
   id: number;
-  // --- New Fields Layout ---
   remainingTime: number;         // 剩余时间（小时）
   isMallOrder: boolean;          // 商城订单
   orderNo: string;               // 订单号 (工单号)
@@ -101,8 +100,6 @@ interface Order {
   overtimeAlert: number;         // 超时提醒（小时）
   isSuspended: boolean;          // 是否挂起 (New)
   
-  // Legacy fields kept for compatibility with existing modals/logic if needed, 
-  // though they might not be shown in the table anymore.
   totalAmount: number;           
   details: string;
   region: string;
@@ -151,10 +148,9 @@ const generateMockData = (): Order[] => {
 
     const amount = 150 + (i % 20) * 20;
     
-    // Random dates
     const now = new Date();
     const createDate = new Date(now.getTime() - Math.random() * 86400000 * 5);
-    const orderDate = new Date(createDate.getTime() - Math.random() * 3600000 * 4); // Order time is 0-4 hours before create time
+    const orderDate = new Date(createDate.getTime() - Math.random() * 3600000 * 4);
     const completeDate = new Date(createDate.getTime() + Math.random() * 86400000);
     const refundDate = new Date(completeDate.getTime() + Math.random() * 86400000);
 
@@ -198,9 +194,8 @@ const generateMockData = (): Order[] => {
       masterCostTime: formatDate(completeDate),
       platformRefund: i % 50 === 0 ? 10 : 0,
       overtimeAlert: parseFloat((Math.random() * 24).toFixed(1)),
-      isSuspended: Math.random() < 0.05, // 5% chance of being suspended initially
+      isSuspended: Math.random() < 0.05,
       
-      // Legacy
       totalAmount: amount,
       details: '无',
       region: '默认区域',
@@ -245,22 +240,19 @@ const NotificationBar = () => {
   );
 };
 
-// --- 重构：SearchPanel (数据概览 + 高级筛选) ---
 const SearchPanel = ({ suspendedCount }: { suspendedCount: number }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
-  // Mock stats for the overview
   const pendingCount = FULL_MOCK_DATA.filter(o => o.status === OrderStatus.PendingDispatch).length;
   const processedCount = FULL_MOCK_DATA.filter(o => o.status === OrderStatus.Completed).length;
   
-  // Calculate new metrics
-  const pending24h = Math.floor(pendingCount * 0.75); // Mock derived
-  const pending48h = Math.floor(pendingCount * 0.45); // Mock derived
-  const pending72h = Math.floor(pendingCount * 0.2); // Mock derived
+  const pending24h = Math.floor(pendingCount * 0.75); 
+  const pending48h = Math.floor(pendingCount * 0.45); 
+  const pending72h = Math.floor(pendingCount * 0.2); 
   const overtimeCount = FULL_MOCK_DATA.filter(o => o.overtimeAlert > 0 && ![OrderStatus.Completed, OrderStatus.Void, OrderStatus.Returned].includes(o.status)).length;
 
   const stats = {
-    todayNew: 15, // Mock data for demo
+    todayNew: 15,
     pending: pendingCount,
     processed: processedCount,
     refundTodayCount: 3,
@@ -275,66 +267,60 @@ const SearchPanel = ({ suspendedCount }: { suspendedCount: number }) => {
 
   return (
     <div className="flex flex-col gap-2 mb-3">
-      {/* 1. Data Overview Bar (Always Visible) 
-          Changes: 
-          - py-3 -> py-5 (Increase height by ~30%)
-          - text-xs -> text-base (Increase font by ~30%)
-          - text-base (numbers) -> text-xl (Increase font by ~30%)
-          - Title text-sm -> text-lg
-      */}
-      <div className="bg-[#F0F7FF] border border-blue-200 rounded-lg px-4 py-5 flex items-center justify-between shadow-sm">
-         <div className="flex items-center gap-6 overflow-x-auto scrollbar-hide flex-1">
-            {/* Title */}
-            <div className="flex items-center gap-2 text-blue-800 font-bold whitespace-nowrap mr-2 select-none border-r border-blue-200 pr-4">
-              <Activity size={24} className="text-blue-600" />
-              <span className="text-lg">数据概览</span>
+      {/* 1. Data Overview Bar - Optimized for distribution and specific font requirements */}
+      <div className="bg-[#F0F7FF] border border-blue-200 rounded-lg px-4 py-4 flex items-center shadow-sm overflow-hidden">
+         <div className="flex items-center flex-1 overflow-hidden">
+            {/* Title: 18px, Black, Bold(700) */}
+            <div className="flex items-center gap-2 border-r border-blue-200 pr-4 shrink-0 select-none">
+              <Activity size={22} className="text-blue-600" />
+              <span className="text-[18px] text-black font-[700] whitespace-nowrap">数据概览</span>
             </div>
             
-            {/* Metrics */}
-            <div className="flex items-center gap-8 text-base whitespace-nowrap">
-               <div className="flex flex-col sm:flex-row sm:items-baseline gap-1.5">
-                  <span className="text-slate-500 font-medium">今日新增售后</span>
-                  <span className="font-bold text-slate-800 text-xl">{stats.todayNew}</span>
+            {/* Metrics: Evenly distributed, no scrollbar. Labels: 12px Regular(400), Values: 16px Bold(700) */}
+            <div className="flex items-center justify-between flex-1 px-4 min-w-0">
+               <div className="flex flex-col items-center">
+                  <span className="text-slate-500 font-[400] text-[12px] whitespace-nowrap">今日新增售后</span>
+                  <span className="font-[700] text-slate-800 text-[16px]">{stats.todayNew}</span>
                </div>
-               <div className="flex flex-col sm:flex-row sm:items-baseline gap-1.5">
-                  <span className="text-slate-500 font-medium">待处理</span>
-                  <span className="font-bold text-orange-600 text-xl">{stats.pending}</span>
+               <div className="flex flex-col items-center">
+                  <span className="text-slate-500 font-[400] text-[12px] whitespace-nowrap">待处理</span>
+                  <span className="font-[700] text-orange-600 text-[16px]">{stats.pending}</span>
                </div>
-               <div className="flex flex-col sm:flex-row sm:items-baseline gap-1.5">
-                  <span className="text-slate-500 font-medium">24h待处理</span>
-                  <span className="font-bold text-orange-600 text-xl">{stats.pending24h}</span>
+               <div className="flex flex-col items-center">
+                  <span className="text-slate-500 font-[400] text-[12px] whitespace-nowrap">24h待处理</span>
+                  <span className="font-[700] text-orange-600 text-[16px]">{stats.pending24h}</span>
                </div>
-               <div className="flex flex-col sm:flex-row sm:items-baseline gap-1.5">
-                  <span className="text-slate-500 font-medium">48h待处理</span>
-                  <span className="font-bold text-orange-700 text-xl">{stats.pending48h}</span>
+               <div className="flex flex-col items-center">
+                  <span className="text-slate-500 font-[400] text-[12px] whitespace-nowrap">48h待处理</span>
+                  <span className="font-[700] text-orange-700 text-[16px]">{stats.pending48h}</span>
                </div>
-               <div className="flex flex-col sm:flex-row sm:items-baseline gap-1.5">
-                  <span className="text-slate-500 font-medium">72h待处理</span>
-                  <span className="font-bold text-red-600 text-xl">{stats.pending72h}</span>
+               <div className="flex flex-col items-center">
+                  <span className="text-slate-500 font-[400] text-[12px] whitespace-nowrap">72h待处理</span>
+                  <span className="font-[700] text-red-600 text-[16px]">{stats.pending72h}</span>
                </div>
-               <div className="flex flex-col sm:flex-row sm:items-baseline gap-1.5">
-                  <span className="text-slate-500 font-medium">超时售后</span>
-                  <span className="font-bold text-red-500 text-xl animate-pulse">{stats.overtimeCount}</span>
+               <div className="flex flex-col items-center">
+                  <span className="text-slate-500 font-[400] text-[12px] whitespace-nowrap">超时售后</span>
+                  <span className="font-[700] text-red-500 text-[16px] animate-pulse">{stats.overtimeCount}</span>
                </div>
-               <div className="flex flex-col sm:flex-row sm:items-baseline gap-1.5">
-                  <span className="text-slate-500 font-medium">已处理</span>
-                  <span className="font-bold text-emerald-600 text-xl">{stats.processed}</span>
+               <div className="flex flex-col items-center">
+                  <span className="text-slate-500 font-[400] text-[12px] whitespace-nowrap">已处理</span>
+                  <span className="font-[700] text-emerald-600 text-[16px]">{stats.processed}</span>
                </div>
-               <div className="flex flex-col sm:flex-row sm:items-baseline gap-1.5">
-                  <span className="text-slate-500 font-medium">今日退款(数量/金额)</span>
-                  <div className="flex items-baseline gap-1">
-                     <span className="font-bold text-red-500 text-xl">{stats.refundTodayCount}</span>
-                     <span className="text-slate-400 text-sm">/</span>
-                     <span className="font-bold text-slate-700 text-lg">¥{stats.refundTodayAmount}</span>
+               <div className="flex flex-col items-center">
+                  <span className="text-slate-500 font-[400] text-[12px] whitespace-nowrap">今日退款</span>
+                  <div className="flex items-baseline gap-0.5">
+                     <span className="font-[700] text-red-500 text-[16px]">{stats.refundTodayCount}</span>
+                     <span className="text-slate-400 text-[11px]">/</span>
+                     <span className="font-[700] text-slate-700 text-[14px]">¥{stats.refundTodayAmount}</span>
                   </div>
                </div>
-               <div className="flex flex-col sm:flex-row sm:items-baseline gap-1.5">
-                  <span className="text-slate-500 font-medium">上周完结率</span>
-                  <span className="font-bold text-blue-600 text-xl">{stats.lastWeekRate}</span>
+               <div className="flex flex-col items-center">
+                  <span className="text-slate-500 font-[400] text-[12px] whitespace-nowrap">完结率</span>
+                  <span className="font-[700] text-blue-600 text-[16px]">{stats.lastWeekRate}</span>
                </div>
-               <div className="flex flex-col sm:flex-row sm:items-baseline gap-1.5">
-                  <span className="text-slate-500 font-medium">24小时处理数</span>
-                  <span className="font-bold text-slate-800 text-xl">{stats.processed24h}</span>
+               <div className="flex flex-col items-center">
+                  <span className="text-slate-500 font-[400] text-[12px] whitespace-nowrap">24h处理数</span>
+                  <span className="font-[700] text-slate-800 text-[16px]">{stats.processed24h}</span>
                </div>
             </div>
          </div>
@@ -349,81 +335,56 @@ const SearchPanel = ({ suspendedCount }: { suspendedCount: number }) => {
          </button>
       </div>
 
-      {/* 2. Expanded Filter Section (Conditionally Rendered) 
-          Changes:
-          - p-4 -> p-2 (Reduce padding)
-          - gap-4 -> gap-2 (Reduce grid gap)
-          - h-8 -> h-6 (Reduce input height by ~30% from 32px to 24px)
-          - gap-1.5 -> gap-0.5 (Reduce label spacing)
-      */}
+      {/* 2. Expanded Filter Section */}
       {isExpanded && (
         <div className="bg-white border border-slate-200 rounded-lg p-2 shadow-sm animate-in fade-in slide-in-from-top-2 duration-200">
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2">
-              {/* 1. 订单号/手机号 */}
               <div className="flex flex-col gap-0.5">
                   <label className="text-xs text-slate-500 font-medium">订单号/手机号</label>
                   <input type="text" placeholder="请输入" className="h-6 px-2 border border-slate-300 rounded text-xs focus:border-blue-500 focus:outline-none" />
               </div>
-              
-              {/* 2. 师傅 */}
               <div className="flex flex-col gap-0.5">
                   <label className="text-xs text-slate-500 font-medium">师傅</label>
                   <input type="text" placeholder="请输入" className="h-6 px-2 border border-slate-300 rounded text-xs focus:border-blue-500 focus:outline-none" />
               </div>
-              
-              {/* 3. 订单来源 */}
               <div className="flex flex-col gap-0.5">
                   <label className="text-xs text-slate-500 font-medium">订单来源</label>
                   <select className="h-6 px-2 border border-slate-300 rounded text-xs focus:border-blue-500 focus:outline-none text-slate-600">
                     <option>请选择</option>
                   </select>
               </div>
-
-              {/* 4. 派单员 */}
               <div className="flex flex-col gap-0.5">
                   <label className="text-xs text-slate-500 font-medium">派单员</label>
                   <input type="text" placeholder="请输入" className="h-6 px-2 border border-slate-300 rounded text-xs focus:border-blue-500 focus:outline-none" />
               </div>
-
-              {/* 5. 办结类型 */}
               <div className="flex flex-col gap-0.5">
                   <label className="text-xs text-slate-500 font-medium">办结类型</label>
                   <select className="h-6 px-2 border border-slate-300 rounded text-xs focus:border-blue-500 focus:outline-none text-slate-600">
                     <option>请选择</option>
                   </select>
               </div>
-
-              {/* 6. 是否入账 */}
               <div className="flex flex-col gap-0.5">
                   <label className="text-xs text-slate-500 font-medium">是否入账</label>
                   <select className="h-6 px-2 border border-slate-300 rounded text-xs focus:border-blue-500 focus:outline-none text-slate-600">
                     <option>请选择</option>
                   </select>
               </div>
-
-              {/* 7. 退款方式 */}
               <div className="flex flex-col gap-0.5">
                   <label className="text-xs text-slate-500 font-medium">退款方式</label>
                   <select className="h-6 px-2 border border-slate-300 rounded text-xs focus:border-blue-500 focus:outline-none text-slate-600">
                     <option>请选择</option>
                   </select>
               </div>
-
-              {/* 8. 状态 */}
               <div className="flex flex-col gap-0.5">
                   <label className="text-xs text-slate-500 font-medium">状态</label>
                   <select className="h-6 px-2 border border-slate-300 rounded text-xs focus:border-blue-500 focus:outline-none text-slate-600">
                     <option>请选择</option>
                   </select>
               </div>
-
-              {/* 9. 创建人 (New) */}
               <div className="flex flex-col gap-0.5">
                   <label className="text-xs text-slate-500 font-medium">创建人</label>
                   <input type="text" placeholder="请输入" className="h-6 px-2 border border-slate-300 rounded text-xs focus:border-blue-500 focus:outline-none" />
               </div>
-              
-              {/* 10. 时间筛选 (Span 2 cols) */}
               <div className="flex flex-col gap-0.5 col-span-2">
                    <label className="text-xs text-slate-500 font-medium">时间筛选</label>
                    <div className="flex items-center gap-0 border border-slate-300 rounded bg-white overflow-hidden h-6">
@@ -442,8 +403,6 @@ const SearchPanel = ({ suspendedCount }: { suspendedCount: number }) => {
                        </div>
                   </div>
               </div>
-              
-              {/* Buttons (Compressed to col-span-1 on large screens to fit row) */}
               <div className="flex items-end gap-2 col-span-2 lg:col-span-1">
                   <button className="h-6 px-4 bg-blue-500 hover:bg-blue-600 text-white text-xs rounded transition-colors shadow-sm font-medium flex-1 flex items-center justify-center gap-1">
                       <Search size={14} /> 搜索
@@ -469,10 +428,7 @@ const TooltipCell = ({ content }: { content: string }) => {
   const handleMouseEnter = () => {
     if (triggerRef.current) {
       const rect = triggerRef.current.getBoundingClientRect();
-      setCoords({
-        x: rect.left + rect.width / 2,
-        y: rect.top
-      });
+      setCoords({ x: rect.left + rect.width / 2, y: rect.top });
       setShow(true);
     }
   };
@@ -490,11 +446,7 @@ const TooltipCell = ({ content }: { content: string }) => {
       {show && createPortal(
         <div 
             className="fixed z-[9999] bg-slate-800 text-white text-xs p-3 rounded-lg shadow-xl max-w-xs break-words pointer-events-none transition-all duration-200 animate-in fade-in zoom-in-95"
-            style={{ 
-              top: coords.y - 8, 
-              left: coords.x, 
-              transform: 'translate(-50%, -100%)' 
-            }}
+            style={{ top: coords.y - 8, left: coords.x, transform: 'translate(-50%, -100%)' }}
         >
           {content}
           <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-800"></div>
@@ -504,10 +456,6 @@ const TooltipCell = ({ content }: { content: string }) => {
     </>
   );
 };
-
-const RecordOrderModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {
-  return null; // Simplified for this update as requested logic is mainly table
-}
 
 const StatusCell = ({ order }: { order: Order }) => {
   const getStatusStyle = (status: OrderStatus) => {
@@ -553,36 +501,11 @@ const CompleteOrderModal = ({ isOpen, onClose, order }: { isOpen: boolean; onClo
 const ActionCell = ({ order, onAction }: { order: Order; onAction: (action: string, id: number) => void }) => {
   return (
     <div className="flex items-center justify-center gap-1">
-        <button 
-          onClick={() => onAction('修改', order.id)} 
-          className="text-xs text-blue-500 hover:text-blue-700 whitespace-nowrap"
-        >
-          修改
-        </button>
-        <button 
-          onClick={() => onAction('完结', order.id)} 
-          className="text-xs text-blue-500 hover:text-blue-700 whitespace-nowrap"
-        >
-          完结
-        </button>
-        <button 
-          onClick={() => onAction('复制', order.id)} 
-          className="text-xs text-blue-500 hover:text-blue-700 whitespace-nowrap"
-        >
-          复制
-        </button>
-        <button 
-          onClick={() => onAction('作废', order.id)} 
-          className="text-xs text-red-500 hover:text-red-700 whitespace-nowrap"
-        >
-          作废
-        </button>
-        <button 
-          onClick={() => onAction('挂起', order.id)} 
-          className={`text-xs whitespace-nowrap ${order.isSuspended ? 'text-orange-600 font-bold' : 'text-slate-500 hover:text-orange-500'}`}
-        >
-          {order.isSuspended ? '已挂起' : '挂起'}
-        </button>
+        <button onClick={() => onAction('修改', order.id)} className="text-xs text-blue-500 hover:text-blue-700 whitespace-nowrap">修改</button>
+        <button onClick={() => onAction('完结', order.id)} className="text-xs text-blue-500 hover:text-blue-700 whitespace-nowrap">完结</button>
+        <button onClick={() => onAction('复制', order.id)} className="text-xs text-blue-500 hover:text-blue-700 whitespace-nowrap">复制</button>
+        <button onClick={() => onAction('作废', order.id)} className="text-xs text-red-500 hover:text-red-700 whitespace-nowrap">作废</button>
+        <button onClick={() => onAction('挂起', order.id)} className={`text-xs whitespace-nowrap ${order.isSuspended ? 'text-orange-600 font-bold' : 'text-slate-500 hover:text-orange-500'}`}>{order.isSuspended ? '已挂起' : '挂起'}</button>
     </div>
   );
 };
@@ -592,47 +515,25 @@ const App = () => {
   const [currentOrder, setCurrentOrder] = useState<Order | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
-  const [showSuspendedOnly, setShowSuspendedOnly] = useState(false); // New state for filtering
-
+  const [showSuspendedOnly, setShowSuspendedOnly] = useState(false);
   const [orders, setOrders] = useState<Order[]>(FULL_MOCK_DATA);
-  
-  // Calculate suspended count dynamically
   const suspendedCount = orders.filter(o => o.isSuspended).length;
 
-  // Sort logic
   const sortedData = [...orders].sort((a, b) => {
-    // Helper: Completed/Void/Returned are inactive, treat as lowest priority for overtime
-    const isInactive = (status: OrderStatus) => 
-      [OrderStatus.Completed, OrderStatus.Void, OrderStatus.Returned].includes(status);
-
+    const isInactive = (status: OrderStatus) => [OrderStatus.Completed, OrderStatus.Void, OrderStatus.Returned].includes(status);
     const aInactive = isInactive(a.status);
     const bInactive = isInactive(b.status);
-
-    // Inactive orders get lowest priority (-9999)
     const aOvertime = aInactive ? -9999 : a.overtimeAlert;
     const bOvertime = bInactive ? -9999 : b.overtimeAlert;
-
-    // 1. Overtime Alert Descending (Longest overtime first)
-    if (aOvertime !== bOvertime) {
-      return bOvertime - aOvertime;
-    }
-    
-    // 2. Pending Status Priority
+    if (aOvertime !== bOvertime) return bOvertime - aOvertime;
     const isAPending = a.status === OrderStatus.PendingDispatch;
     const isBPending = b.status === OrderStatus.PendingDispatch;
-    
     if (isAPending && !isBPending) return -1;
     if (!isAPending && isBPending) return 1;
-    
-    // 3. Remaining Time (Ascending)
     return a.remainingTime - b.remainingTime;
   });
 
-  // Filter Data based on showSuspendedOnly
-  const displayData = showSuspendedOnly 
-      ? sortedData.filter(o => o.isSuspended) 
-      : sortedData;
-
+  const displayData = showSuspendedOnly ? sortedData.filter(o => o.isSuspended) : sortedData;
   const totalItems = displayData.length;
   const totalPages = Math.ceil(totalItems / pageSize);
   const currentData = displayData.slice((currentPage - 1) * pageSize, currentPage * pageSize);
@@ -642,7 +543,6 @@ const App = () => {
       setOrders(prev => prev.map(o => o.id === id ? { ...o, isSuspended: !o.isSuspended } : o));
       return;
     }
-
     const order = sortedData.find(o => o.id === id);
     if (!order) return;
     if (action === '完单') { setCurrentOrder(order); setCompleteModalOpen(true); } 
@@ -653,51 +553,27 @@ const App = () => {
   const handlePrevPage = () => { if (currentPage > 1) setCurrentPage(prev => prev - 1); };
   const handlePageChange = (p: number) => { if(p >= 1 && p <= totalPages) setCurrentPage(p); }
 
-  // Reset page when filter changes
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [showSuspendedOnly]);
+  useEffect(() => { setCurrentPage(1); }, [showSuspendedOnly]);
 
-  // Helper to render image icon state
   const ImageState = ({ hasImage }: { hasImage: boolean }) => (
-    hasImage 
-      ? <div className="flex justify-center"><ImageIcon size={14} className="text-blue-500"/></div> 
-      : <div className="flex justify-center text-gray-300">-</div>
+    hasImage ? <div className="flex justify-center"><ImageIcon size={14} className="text-blue-500"/></div> : <div className="flex justify-center text-gray-300">-</div>
   );
 
-  // Pagination Logic
   const renderPagination = () => {
     const range = [];
-    // Always show 1
-    // Show last
-    // Show current +/- range
-    
     if (totalPages <= 7) {
         for(let i=1; i<=totalPages; i++) range.push(i);
     } else {
         range.push(1);
         if (currentPage > 4) range.push('...');
-        
         let start = Math.max(2, currentPage - 2);
         let end = Math.min(totalPages - 1, currentPage + 2);
-        
-        // Adjust if close to ends
-        if (currentPage <= 4) {
-            end = 6;
-            start = 2;
-        } else if (currentPage >= totalPages - 3) {
-            start = totalPages - 5;
-            end = totalPages - 1;
-        }
-        
-        for (let i = start; i <= end; i++) {
-            range.push(i);
-        }
-        
+        if (currentPage <= 4) { end = 6; start = 2; } 
+        else if (currentPage >= totalPages - 3) { start = totalPages - 5; end = totalPages - 1; }
+        for (let i = start; i <= end; i++) range.push(i);
         if (currentPage < totalPages - 3) range.push('...');
         range.push(totalPages);
     }
-    
     return range;
   };
   
@@ -706,88 +582,18 @@ const App = () => {
   return (
     <div className="h-screen bg-gradient-to-br from-slate-200 to-slate-300 p-6 flex flex-col overflow-hidden relative">
       <style>{`
-        /* 
-         * 核心优化：强制覆盖表格层级和背景，解决右侧固定列穿插问题
-         * 使用 !important 确保样式优先级最高
-         */
-
-        /* 1. 全局单元格层级重置 */
-        td, th {
-          z-index: 1;
-          position: relative;
-        }
-
-        /* 2. 右侧固定列：最高层级 */
-        .sticky-col {
-          position: sticky !important;
-          z-index: 100 !important; 
-          background-clip: padding-box;
-        }
-        
-        /* 表头固定列层级更高 */
-        thead th.sticky-col {
-          z-index: 110 !important;
-        }
-        
-        /* 普通表头 */
-        thead th:not(.sticky-col) {
-          z-index: 50; 
-        }
-
-        /* --- 3. 背景色 (必须100%不透明) --- */
-        
-        /* 表头背景 */
-        th.sticky-th-solid {
-          background-color: #f8fafc !important; /* slate-50 */
-        }
-
-        /* 表体背景 - 默认 */
-        tr td.sticky-bg-solid {
-          background-color: #ffffff !important;
-        }
-        
-        /* 表体背景 - 偶数行 */
-        tr:nth-child(even) td.sticky-bg-solid {
-          background-color: #eff6ff !important; 
-        }
-        
-        /* 表体背景 - 鼠标悬停 */
-        tr:hover td.sticky-bg-solid {
-          background-color: #dbeafe !important; 
-        }
-
-        /* --- 4. 定位与视觉分割 --- */
-        
-        /* 操作列 (最右侧，基准0) -> Compacted to 170px */
-        .sticky-right-action {
-          right: 0px !important;
-          width: 170px;
-        }
-
-        /* 剩余/超时列 (中间，基准170px) -> Compacted to 100px */
-        .sticky-right-alert {
-          right: 170px !important; 
-          width: 100px;
-          border-left: none !important; /* 移除中间的分割线 */
-          box-shadow: none !important;  /* 移除中间的阴影 */
-          background-color: #38bdf8 !important; /* Sky Blue - 天蓝色背景 */
-        }
-
-        /* 联系人列 (最左侧固定列，基准270px) -> Adjusted to 160px */
-        .sticky-right-contact {
-          right: 270px !important; /* 170 + 100 */
-          width: 160px !important;
-          min-width: 160px !important; /* Force min width */
-          border-left: 1px solid #cbd5e1 !important; /* 阴影和边框移到这里 */
-          box-shadow: -6px 0 10px -4px rgba(0,0,0,0.15); 
-        }
-
-        /* Ensure data cells in the alert column always have sky blue background */
-        tr td.sticky-right-alert,
-        tr:nth-child(even) td.sticky-right-alert,
-        tr:hover td.sticky-right-alert {
-          background-color: #38bdf8 !important;
-        }
+        td, th { z-index: 1; position: relative; }
+        .sticky-col { position: sticky !important; z-index: 100 !important; background-clip: padding-box; }
+        thead th.sticky-col { z-index: 110 !important; }
+        thead th:not(.sticky-col) { z-index: 50; }
+        th.sticky-th-solid { background-color: #f8fafc !important; }
+        tr td.sticky-bg-solid { background-color: #ffffff !important; }
+        tr:nth-child(even) td.sticky-bg-solid { background-color: #eff6ff !important; }
+        tr:hover td.sticky-bg-solid { background-color: #dbeafe !important; }
+        .sticky-right-action { right: 0px !important; width: 170px; }
+        .sticky-right-alert { right: 170px !important; width: 100px; border-left: none !important; box-shadow: none !important; background-color: #38bdf8 !important; }
+        .sticky-right-contact { right: 270px !important; width: 160px !important; min-width: 160px !important; border-left: 1px solid #cbd5e1 !important; box-shadow: -6px 0 10px -4px rgba(0,0,0,0.15); }
+        tr td.sticky-right-alert, tr:nth-child(even) td.sticky-right-alert, tr:hover td.sticky-right-alert { background-color: #38bdf8 !important; }
       `}</style>
       <div className="max-w-[1800px] mx-auto w-full flex-1 flex flex-col h-full">
         
@@ -830,9 +636,6 @@ const App = () => {
                   <th className="px-3 py-2 whitespace-nowrap bg-slate-50 sticky top-0 z-30 max-w-[150px]">完结说明</th>
                   <th className="px-3 py-2 whitespace-nowrap bg-slate-50 sticky top-0 z-30">作废人</th>
                   <th className="px-3 py-2 whitespace-nowrap bg-slate-50 sticky top-0 z-30">作废原因</th>
-                  {/* REMOVED: 师傅退款时间, 公司退款时间, 师傅成本时间, 平台退款 */}
-
-                  {/* Fixed Columns Group */}
                   <th className="px-2 py-2 whitespace-nowrap bg-slate-50 sticky-th-solid sticky-col sticky-right-contact w-[160px] text-center border-l border-gray-200">联系人</th>
                   <th className="px-3 py-2 whitespace-nowrap text-center w-[100px] sticky-th-solid sticky-col sticky-right-alert">剩余/超时(H)</th>
                   <th className="px-3 py-2 whitespace-nowrap text-center w-[170px] sticky-th-solid sticky-col sticky-right-action border-l border-gray-200">操作</th>
@@ -854,22 +657,17 @@ const App = () => {
                     <td className="px-3 py-2 text-slate-800 font-bold font-mono">{order.mobile}</td>
                     <td className="px-3 py-2 text-slate-600 whitespace-nowrap">{order.serviceItem}</td>
                     <td className="px-3 py-2 text-slate-600 whitespace-nowrap">{order.initiator}</td>
-                    
-                    {/* Updated Order/Create Time Column */}
                     <td className="px-3 py-2 whitespace-nowrap">
                         <div className="flex flex-col">
                             <span className="text-slate-800 font-medium">{order.orderTime}</span>
                             <span className="text-slate-400 text-[10px] mt-0.5">{order.createTime}</span>
                         </div>
                     </td>
-                    
                     <td className="px-3 py-2 text-slate-800 font-medium">{order.customerName}</td>
                     <td className="px-3 py-2 text-center whitespace-nowrap"><span className="px-2 py-0.5 bg-slate-100 text-slate-500 rounded border border-slate-200">{order.source}</span></td>
                     <td className="px-3 py-2 text-center"><StatusCell order={order} /></td>
                     <td className="px-3 py-2 text-center font-mono text-slate-700">{formatCurrency(order.cashierPaymentAmount)}</td>
-                    <td className="px-3 py-2 text-slate-600 max-w-[120px]">
-                      <TooltipCell content={order.customerRequest} />
-                    </td>
+                    <td className="px-3 py-2 text-slate-600 max-w-[120px]"><TooltipCell content={order.customerRequest} /></td>
                     <td className="px-3 py-2 text-slate-600 max-w-[120px] truncate" title={order.remark}>{order.remark || '-'}</td>
                     <td className="px-3 py-2 text-slate-600 whitespace-nowrap">{order.recorderName}</td>
                     <td className="px-3 py-2 text-slate-700 font-medium whitespace-nowrap">{order.masterName}</td>
@@ -881,19 +679,16 @@ const App = () => {
                     <td className="px-3 py-2 text-center text-slate-600">{order.entryStatus}</td>
                     <td className="px-3 py-2 text-center font-mono text-slate-600">{formatCurrency(order.companyRefund)}</td>
                     <td className="px-3 py-2 text-center font-mono text-slate-500">{formatCurrency(order.masterCost)}</td>
-                    
                     <td className="px-3 py-2"><ImageState hasImage={order.customerPaymentCode} /></td>
                     <td className="px-3 py-2"><ImageState hasImage={order.invalidVoucher} /></td>
                     <td className="px-3 py-2"><ImageState hasImage={order.paymentVoucher} /></td>
-                    
                     <td className="px-3 py-2 text-slate-600">{order.completerName}</td>
                     <td className="px-3 py-2 text-slate-600">{order.completionType}</td>
                     <td className="px-3 py-2 text-slate-500 whitespace-nowrap">{order.completionTime}</td>
                     <td className="px-3 py-2 text-slate-500 max-w-[150px] truncate" title={order.completionNote}>{order.completionNote || '-'}</td>
                     <td className="px-3 py-2 text-slate-500">{order.voiderName}</td>
                     <td className="px-3 py-2 text-slate-500">{order.voidReason}</td>
-
-                    {/* Fixed Columns Group */}
+                    {/* Contact grid strictly preserved */}
                     <td className="px-2 py-2 sticky-col sticky-right-contact sticky-bg-solid border-l border-gray-200">
                       <div className="grid grid-cols-2 gap-2 w-full">
                         {['客服', '派单员', '运营', '群聊'].map(label => (
@@ -908,14 +703,8 @@ const App = () => {
                         <span className="text-white/70 font-medium">/</span>
                       ) : (
                         <div className="flex items-center justify-center gap-1 h-8">
-                            <span className="text-base font-mono font-bold text-white">
-                              {order.remainingTime}
-                            </span>
-                            {order.overtimeAlert > 0 && (
-                              <span className="ml-1 px-1 border border-yellow-300 rounded text-[13px] font-extrabold text-yellow-300 animate-pulse">
-                                +{order.overtimeAlert}
-                              </span>
-                            )}
+                            <span className="text-base font-mono font-bold text-white">{order.remainingTime}</span>
+                            {order.overtimeAlert > 0 && <span className="ml-1 px-1 border border-yellow-300 rounded text-[13px] font-extrabold text-yellow-300 animate-pulse">+{order.overtimeAlert}</span>}
                         </div>
                       )}
                     </td>
@@ -927,102 +716,33 @@ const App = () => {
               </tbody>
             </table>
           </div>
-          {/* New Pagination Footer */}
           <div className="bg-white px-4 py-3 border-t border-gray-200 flex justify-center items-center mt-auto">
              <div className="flex items-center gap-3 select-none">
                 <span className="text-sm text-slate-500">共 {totalItems} 条</span>
-                
-                <select 
-                    value={pageSize}
-                    onChange={(e) => {
-                        setPageSize(Number(e.target.value));
-                        setCurrentPage(1);
-                    }}
-                    className="border border-slate-300 rounded px-2 py-1 text-sm text-slate-600 outline-none focus:border-blue-500 cursor-pointer hover:border-blue-400"
-                >
+                <select value={pageSize} onChange={(e) => { setPageSize(Number(e.target.value)); setCurrentPage(1); }} className="border border-slate-300 rounded px-2 py-1 text-sm text-slate-600 outline-none focus:border-blue-500 cursor-pointer hover:border-blue-400">
                     <option value={10}>10条/页</option>
                     <option value={20}>20条/页</option>
                     <option value={50}>50条/页</option>
                     <option value={100}>100条/页</option>
                 </select>
-                
                 <div className="flex items-center gap-1">
-                    <button 
-                        onClick={handlePrevPage} 
-                        disabled={currentPage === 1}
-                        className="w-8 h-8 flex items-center justify-center border border-slate-300 rounded bg-white text-slate-500 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                    >
-                        <ChevronLeft size={16} />
-                    </button>
-                    
+                    <button onClick={handlePrevPage} disabled={currentPage === 1} className="w-8 h-8 flex items-center justify-center border border-slate-300 rounded bg-white text-slate-500 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"><ChevronLeft size={16} /></button>
                     {paginationRange.map((page, idx) => (
-                        page === '...' ? (
-                            <span key={`dots-${idx}`} className="w-8 h-8 flex items-center justify-center text-slate-400 font-bold">···</span>
-                        ) : (
-                            <button
-                                key={page}
-                                onClick={() => handlePageChange(page as number)}
-                                className={`w-8 h-8 flex items-center justify-center border rounded text-sm font-medium transition-colors ${
-                                    currentPage === page 
-                                        ? 'bg-blue-600 border-blue-600 text-white' 
-                                        : 'border-slate-300 bg-white text-slate-600 hover:border-blue-500 hover:text-blue-500'
-                                }`}
-                            >
-                                {page}
-                            </button>
-                        )
+                        page === '...' ? <span key={`dots-${idx}`} className="w-8 h-8 flex items-center justify-center text-slate-400 font-bold">···</span> : 
+                        <button key={page} onClick={() => handlePageChange(page as number)} className={`w-8 h-8 flex items-center justify-center border rounded text-sm font-medium transition-colors ${currentPage === page ? 'bg-blue-600 border-blue-600 text-white' : 'border-slate-300 bg-white text-slate-600 hover:border-blue-500 hover:text-blue-500'}`}>{page}</button>
                     ))}
-                    
-                    <button 
-                        onClick={handleNextPage} 
-                        disabled={currentPage === totalPages}
-                        className="w-8 h-8 flex items-center justify-center border border-slate-300 rounded bg-white text-slate-500 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                    >
-                        <ChevronRight size={16} />
-                    </button>
+                    <button onClick={handleNextPage} disabled={currentPage === totalPages} className="w-8 h-8 flex items-center justify-center border border-slate-300 rounded bg-white text-slate-500 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"><ChevronRight size={16} /></button>
                 </div>
-                
                 <div className="flex items-center gap-2 text-sm text-slate-500 ml-2">
                     <span>前往</span>
-                    <input 
-                        type="number" 
-                        min={1} 
-                        max={totalPages}
-                        defaultValue={currentPage}
-                        onKeyDown={(e) => {
-                            if (e.key === 'Enter') {
-                                const val = parseInt(e.currentTarget.value);
-                                if (val >= 1 && val <= totalPages) setCurrentPage(val);
-                            }
-                        }}
-                        onBlur={(e) => {
-                             const val = parseInt(e.target.value);
-                             if (val >= 1 && val <= totalPages) setCurrentPage(val);
-                             else e.target.value = currentPage.toString();
-                        }}
-                        className="w-12 h-8 border border-slate-300 rounded text-center outline-none focus:border-blue-500 text-slate-700"
-                    />
+                    <input type="number" min={1} max={totalPages} defaultValue={currentPage} onKeyDown={(e) => { if (e.key === 'Enter') { const val = parseInt(e.currentTarget.value); if (val >= 1 && val <= totalPages) setCurrentPage(val); } }} onBlur={(e) => { const val = parseInt(e.target.value); if (val >= 1 && val <= totalPages) setCurrentPage(val); else e.target.value = currentPage.toString(); }} className="w-12 h-8 border border-slate-300 rounded text-center outline-none focus:border-blue-500 text-slate-700" />
                     <span>页</span>
                 </div>
             </div>
           </div>
         </div>
       </div>
-
-      {/* Updated Floating Suspended Filter Button */}
-      <button
-        onClick={() => setShowSuspendedOnly(!showSuspendedOnly)}
-        className={`fixed bottom-6 right-6 w-20 h-20 rounded-full shadow-xl flex flex-col items-center justify-center text-white transition-all z-[9999] active:scale-95 ${
-          showSuspendedOnly 
-            ? 'bg-orange-600 ring-4 ring-orange-200 scale-110' 
-            : 'bg-orange-500 hover:bg-orange-600 hover:scale-105'
-        }`}
-        title={showSuspendedOnly ? "显示全部订单" : "只显示挂起订单"}
-      >
-        <span className="text-[10px] font-medium opacity-90 mb-0.5 whitespace-nowrap">已挂起数</span>
-        <span className="text-2xl font-bold leading-none">{suspendedCount}</span>
-      </button>
-
+      <button onClick={() => setShowSuspendedOnly(!showSuspendedOnly)} className={`fixed bottom-6 right-6 w-20 h-20 rounded-full shadow-xl flex flex-col items-center justify-center text-white transition-all z-[9999] active:scale-95 ${showSuspendedOnly ? 'bg-orange-600 ring-4 ring-orange-200 scale-110' : 'bg-orange-500 hover:bg-orange-600 hover:scale-105'}`} title={showSuspendedOnly ? "显示全部订单" : "只显示挂起订单"}><span className="text-[10px] font-medium opacity-90 mb-0.5 whitespace-nowrap">已挂起数</span><span className="text-2xl font-bold leading-none">{suspendedCount}</span></button>
       <CompleteOrderModal isOpen={completeModalOpen} onClose={() => setCompleteModalOpen(false)} order={currentOrder} />
     </div>
   );
