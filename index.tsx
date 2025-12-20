@@ -147,7 +147,6 @@ const generateMockData = (): Order[] => {
     }
 
     const amount = 150 + (i % 20) * 20;
-    
     const now = new Date();
     const createDate = new Date(now.getTime() - Math.random() * 86400000 * 5);
     const orderDate = new Date(createDate.getTime() - Math.random() * 3600000 * 4);
@@ -267,7 +266,7 @@ const SearchPanel = ({ suspendedCount }: { suspendedCount: number }) => {
 
   return (
     <div className="flex flex-col gap-2 mb-3">
-      {/* 1. Data Overview Bar - Optimized for distribution and specific font requirements */}
+      {/* 1. Data Overview Bar - 文字数字在同一行且均匀分布 */}
       <div className="bg-[#F0F7FF] border border-blue-200 rounded-lg px-4 py-4 flex items-center shadow-sm overflow-hidden">
          <div className="flex items-center flex-1 overflow-hidden">
             {/* Title: 18px, Black, Bold(700) */}
@@ -276,37 +275,37 @@ const SearchPanel = ({ suspendedCount }: { suspendedCount: number }) => {
               <span className="text-[18px] text-black font-[700] whitespace-nowrap">数据概览</span>
             </div>
             
-            {/* Metrics: Evenly distributed, no scrollbar. Labels: 12px Regular(400), Values: 16px Bold(700) */}
+            {/* Metrics: 文字数字单行显示，均匀分布。Labels: 12px Regular(400), Values: 16px Bold(700) */}
             <div className="flex items-center justify-between flex-1 px-4 min-w-0">
-               <div className="flex flex-col items-center">
+               <div className="flex items-center gap-1.5">
                   <span className="text-slate-500 font-[400] text-[12px] whitespace-nowrap">今日新增售后</span>
                   <span className="font-[700] text-slate-800 text-[16px]">{stats.todayNew}</span>
                </div>
-               <div className="flex flex-col items-center">
+               <div className="flex items-center gap-1.5">
                   <span className="text-slate-500 font-[400] text-[12px] whitespace-nowrap">待处理</span>
                   <span className="font-[700] text-orange-600 text-[16px]">{stats.pending}</span>
                </div>
-               <div className="flex flex-col items-center">
+               <div className="flex items-center gap-1.5">
                   <span className="text-slate-500 font-[400] text-[12px] whitespace-nowrap">24h待处理</span>
                   <span className="font-[700] text-orange-600 text-[16px]">{stats.pending24h}</span>
                </div>
-               <div className="flex flex-col items-center">
+               <div className="flex items-center gap-1.5">
                   <span className="text-slate-500 font-[400] text-[12px] whitespace-nowrap">48h待处理</span>
                   <span className="font-[700] text-orange-700 text-[16px]">{stats.pending48h}</span>
                </div>
-               <div className="flex flex-col items-center">
+               <div className="flex items-center gap-1.5">
                   <span className="text-slate-500 font-[400] text-[12px] whitespace-nowrap">72h待处理</span>
                   <span className="font-[700] text-red-600 text-[16px]">{stats.pending72h}</span>
                </div>
-               <div className="flex flex-col items-center">
+               <div className="flex items-center gap-1.5">
                   <span className="text-slate-500 font-[400] text-[12px] whitespace-nowrap">超时售后</span>
                   <span className="font-[700] text-red-500 text-[16px] animate-pulse">{stats.overtimeCount}</span>
                </div>
-               <div className="flex flex-col items-center">
+               <div className="flex items-center gap-1.5">
                   <span className="text-slate-500 font-[400] text-[12px] whitespace-nowrap">已处理</span>
                   <span className="font-[700] text-emerald-600 text-[16px]">{stats.processed}</span>
                </div>
-               <div className="flex flex-col items-center">
+               <div className="flex items-center gap-1.5">
                   <span className="text-slate-500 font-[400] text-[12px] whitespace-nowrap">今日退款</span>
                   <div className="flex items-baseline gap-0.5">
                      <span className="font-[700] text-red-500 text-[16px]">{stats.refundTodayCount}</span>
@@ -314,11 +313,11 @@ const SearchPanel = ({ suspendedCount }: { suspendedCount: number }) => {
                      <span className="font-[700] text-slate-700 text-[14px]">¥{stats.refundTodayAmount}</span>
                   </div>
                </div>
-               <div className="flex flex-col items-center">
+               <div className="flex items-center gap-1.5">
                   <span className="text-slate-500 font-[400] text-[12px] whitespace-nowrap">完结率</span>
                   <span className="font-[700] text-blue-600 text-[16px]">{stats.lastWeekRate}</span>
                </div>
-               <div className="flex flex-col items-center">
+               <div className="flex items-center gap-1.5">
                   <span className="text-slate-500 font-[400] text-[12px] whitespace-nowrap">24h处理数</span>
                   <span className="font-[700] text-slate-800 text-[16px]">{stats.processed24h}</span>
                </div>
@@ -580,7 +579,7 @@ const App = () => {
   const paginationRange = renderPagination();
 
   return (
-    <div className="h-screen bg-gradient-to-br from-slate-200 to-slate-300 p-6 flex flex-col overflow-hidden relative">
+    <div className="h-screen bg-gradient-to-br from-slate-200 to-slate-300 p-[12px] flex flex-col overflow-hidden relative">
       <style>{`
         td, th { z-index: 1; position: relative; }
         .sticky-col { position: sticky !important; z-index: 100 !important; background-clip: padding-box; }
@@ -595,7 +594,7 @@ const App = () => {
         .sticky-right-contact { right: 270px !important; width: 160px !important; min-width: 160px !important; border-left: 1px solid #cbd5e1 !important; box-shadow: -6px 0 10px -4px rgba(0,0,0,0.15); }
         tr td.sticky-right-alert, tr:nth-child(even) td.sticky-right-alert, tr:hover td.sticky-right-alert { background-color: #38bdf8 !important; }
       `}</style>
-      <div className="max-w-[1800px] mx-auto w-full flex-1 flex flex-col h-full">
+      <div className="w-full flex-1 flex flex-col h-full">
         
         <NotificationBar />
         <SearchPanel suspendedCount={suspendedCount} />
@@ -688,7 +687,6 @@ const App = () => {
                     <td className="px-3 py-2 text-slate-500 max-w-[150px] truncate" title={order.completionNote}>{order.completionNote || '-'}</td>
                     <td className="px-3 py-2 text-slate-500">{order.voiderName}</td>
                     <td className="px-3 py-2 text-slate-500">{order.voidReason}</td>
-                    {/* Contact grid strictly preserved */}
                     <td className="px-2 py-2 sticky-col sticky-right-contact sticky-bg-solid border-l border-gray-200">
                       <div className="grid grid-cols-2 gap-2 w-full">
                         {['客服', '派单员', '运营', '群聊'].map(label => (
