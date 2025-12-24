@@ -212,14 +212,14 @@ const NotificationBar = () => {
   return (
     <div className="mb-3 bg-[#0B1120] rounded-lg px-3 py-2.5 flex items-center gap-4 overflow-hidden relative shadow-md">
       {/* Label */}
-      <div className="flex items-center gap-1.5 bg-[#EF4444] text-white px-3 py-1.5 rounded text-[13px] font-bold whitespace-nowrap z-10 shrink-0 shadow-sm">
+      <div className="flex items-center gap-1.5 bg-[#EF4444] text-white px-3 py-1.5 rounded text-[13px] font-bold font-sans whitespace-nowrap z-10 shrink-0 shadow-sm">
         <span className="tracking-wide">主要公告</span>
         <Bell size={14} fill="currentColor" />
       </div>
       
       {/* Scrolling Text */}
       <div className="flex-1 overflow-hidden relative h-6 group flex items-center">
-        <div className="absolute whitespace-nowrap animate-marquee group-hover:pause-animation text-sm text-slate-200 flex items-center font-medium">
+        <div className="absolute whitespace-nowrap animate-marquee group-hover:pause-animation text-sm text-slate-200 flex items-center font-medium font-sans">
           <Megaphone size={16} className="text-[#EF4444] mr-3" />
           <span className="mr-12">关于 2025 年度秋季职级晋升评审的通知：点击下方详情以阅读完整公告内容。请所有相关人员务必在截止日期前完成确认。</span>
           
@@ -284,57 +284,57 @@ const SearchPanel = ({ suspendedCount }: { suspendedCount: number }) => {
       {/* 1. Data Overview Bar - 文字数字在同一行且均匀分布 */}
       <div className="bg-[#F0F7FF] border border-blue-200 rounded-lg px-4 py-4 flex items-center shadow-sm overflow-hidden">
          <div className="flex items-center flex-1 overflow-hidden">
-            {/* Title: 18px, Black, Bold(700) */}
+            {/* Title: 18px, Black, Bold(700), Sans-Serif */}
             <div className="flex items-center gap-2 border-r border-blue-200 pr-4 shrink-0 select-none">
               <Activity size={22} className="text-blue-600" />
-              <span className="text-[18px] text-black font-[700] whitespace-nowrap">数据概览</span>
+              <span className="text-[18px] text-black font-[700] font-sans whitespace-nowrap">数据概览</span>
             </div>
             
-            {/* Metrics: 文字数字单行显示，均匀分布。Labels: 12px Regular(400), Values: 16px Bold(700) */}
+            {/* Metrics: 文字数字单行显示，均匀分布。Labels: 12px Regular(400) Sans, Values: 16px Bold(700) Mono */}
             <div className="flex items-center justify-between flex-1 px-4 min-w-0">
                <div className="flex items-center gap-1.5">
-                  <span className="text-slate-500 font-[400] text-[12px] whitespace-nowrap">今日新增售后</span>
-                  <span className="font-[700] text-slate-800 text-[16px]">{stats.todayNew}</span>
+                  <span className="text-slate-500 font-[400] text-[12px] font-sans whitespace-nowrap">今日新增售后</span>
+                  <span className="font-[700] text-slate-800 text-[16px] font-mono">{stats.todayNew}</span>
                </div>
                <div className="flex items-center gap-1.5">
-                  <span className="text-slate-500 font-[400] text-[12px] whitespace-nowrap">待处理</span>
-                  <span className="font-[700] text-orange-600 text-[16px]">{stats.pending}</span>
+                  <span className="text-slate-500 font-[400] text-[12px] font-sans whitespace-nowrap">待处理</span>
+                  <span className="font-[700] text-orange-600 text-[16px] font-mono">{stats.pending}</span>
                </div>
                <div className="flex items-center gap-1.5">
-                  <span className="text-slate-500 font-[400] text-[12px] whitespace-nowrap">24h待处理</span>
-                  <span className="font-[700] text-orange-600 text-[16px]">{stats.pending24h}</span>
+                  <span className="text-slate-500 font-[400] text-[12px] font-sans whitespace-nowrap">24h待处理</span>
+                  <span className="font-[700] text-orange-600 text-[16px] font-mono">{stats.pending24h}</span>
                </div>
                <div className="flex items-center gap-1.5">
-                  <span className="text-slate-500 font-[400] text-[12px] whitespace-nowrap">48h待处理</span>
-                  <span className="font-[700] text-orange-700 text-[16px]">{stats.pending48h}</span>
+                  <span className="text-slate-500 font-[400] text-[12px] font-sans whitespace-nowrap">48h待处理</span>
+                  <span className="font-[700] text-orange-700 text-[16px] font-mono">{stats.pending48h}</span>
                </div>
                <div className="flex items-center gap-1.5">
-                  <span className="text-slate-500 font-[400] text-[12px] whitespace-nowrap">72h待处理</span>
-                  <span className="font-[700] text-red-600 text-[16px]">{stats.pending72h}</span>
+                  <span className="text-slate-500 font-[400] text-[12px] font-sans whitespace-nowrap">72h待处理</span>
+                  <span className="font-[700] text-red-600 text-[16px] font-mono">{stats.pending72h}</span>
                </div>
                <div className="flex items-center gap-1.5">
-                  <span className="text-slate-500 font-[400] text-[12px] whitespace-nowrap">超时售后</span>
-                  <span className="font-[700] text-red-500 text-[16px] animate-pulse">{stats.overtimeCount}</span>
+                  <span className="text-slate-500 font-[400] text-[12px] font-sans whitespace-nowrap">超时售后</span>
+                  <span className="font-[700] text-red-500 text-[16px] animate-pulse font-mono">{stats.overtimeCount}</span>
                </div>
                <div className="flex items-center gap-1.5">
-                  <span className="text-slate-500 font-[400] text-[12px] whitespace-nowrap">已处理</span>
-                  <span className="font-[700] text-emerald-600 text-[16px]">{stats.processed}</span>
+                  <span className="text-slate-500 font-[400] text-[12px] font-sans whitespace-nowrap">已处理</span>
+                  <span className="font-[700] text-emerald-600 text-[16px] font-mono">{stats.processed}</span>
                </div>
                <div className="flex items-center gap-1.5">
-                  <span className="text-slate-500 font-[400] text-[12px] whitespace-nowrap">今日退款</span>
+                  <span className="text-slate-500 font-[400] text-[12px] font-sans whitespace-nowrap">今日退款</span>
                   <div className="flex items-baseline gap-0.5">
-                     <span className="font-[700] text-red-500 text-[16px]">{stats.refundTodayCount}</span>
-                     <span className="text-slate-400 text-[11px]">/</span>
-                     <span className="font-[700] text-slate-700 text-[14px]">¥{stats.refundTodayAmount}</span>
+                     <span className="font-[700] text-red-500 text-[16px] font-mono">{stats.refundTodayCount}</span>
+                     <span className="text-slate-400 text-[11px] font-sans">/</span>
+                     <span className="font-[700] text-slate-700 text-[14px] font-mono">¥{stats.refundTodayAmount}</span>
                   </div>
                </div>
                <div className="flex items-center gap-1.5">
-                  <span className="text-slate-500 font-[400] text-[12px] whitespace-nowrap">完结率</span>
-                  <span className="font-[700] text-blue-600 text-[16px]">{stats.lastWeekRate}</span>
+                  <span className="text-slate-500 font-[400] text-[12px] font-sans whitespace-nowrap">完结率</span>
+                  <span className="font-[700] text-blue-600 text-[16px] font-mono">{stats.lastWeekRate}</span>
                </div>
                <div className="flex items-center gap-1.5">
-                  <span className="text-slate-500 font-[400] text-[12px] whitespace-nowrap">24h处理数</span>
-                  <span className="font-[700] text-slate-800 text-[16px]">{stats.processed24h}</span>
+                  <span className="text-slate-500 font-[400] text-[12px] font-sans whitespace-nowrap">24h处理数</span>
+                  <span className="font-[700] text-slate-800 text-[16px] font-mono">{stats.processed24h}</span>
                </div>
             </div>
          </div>
@@ -354,74 +354,74 @@ const SearchPanel = ({ suspendedCount }: { suspendedCount: number }) => {
         <div className="bg-white border border-slate-200 rounded-lg p-2 shadow-sm animate-in fade-in slide-in-from-top-2 duration-200">
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2">
               <div className="flex flex-col gap-0.5">
-                  <label className="text-xs text-slate-500 font-medium">订单号/手机号</label>
-                  <input type="text" placeholder="请输入" className="h-6 px-2 border border-slate-300 rounded text-xs focus:border-blue-500 focus:outline-none" />
+                  <label className="text-xs text-slate-500 font-medium font-sans">订单号/手机号</label>
+                  <input type="text" placeholder="请输入" className="h-6 px-2 border border-slate-300 rounded text-xs focus:border-blue-500 focus:outline-none font-mono" />
               </div>
               <div className="flex flex-col gap-0.5">
-                  <label className="text-xs text-slate-500 font-medium">师傅</label>
-                  <input type="text" placeholder="请输入" className="h-6 px-2 border border-slate-300 rounded text-xs focus:border-blue-500 focus:outline-none" />
+                  <label className="text-xs text-slate-500 font-medium font-sans">师傅</label>
+                  <input type="text" placeholder="请输入" className="h-6 px-2 border border-slate-300 rounded text-xs focus:border-blue-500 focus:outline-none font-sans" />
               </div>
               <div className="flex flex-col gap-0.5">
-                  <label className="text-xs text-slate-500 font-medium">订单来源</label>
-                  <select className="h-6 px-2 border border-slate-300 rounded text-xs focus:border-blue-500 focus:outline-none text-slate-600">
+                  <label className="text-xs text-slate-500 font-medium font-sans">订单来源</label>
+                  <select className="h-6 px-2 border border-slate-300 rounded text-xs focus:border-blue-500 focus:outline-none text-slate-600 font-sans">
                     <option>请选择</option>
                   </select>
               </div>
               <div className="flex flex-col gap-0.5">
-                  <label className="text-xs text-slate-500 font-medium">派单员</label>
-                  <input type="text" placeholder="请输入" className="h-6 px-2 border border-slate-300 rounded text-xs focus:border-blue-500 focus:outline-none" />
+                  <label className="text-xs text-slate-500 font-medium font-sans">派单员</label>
+                  <input type="text" placeholder="请输入" className="h-6 px-2 border border-slate-300 rounded text-xs focus:border-blue-500 focus:outline-none font-sans" />
               </div>
               <div className="flex flex-col gap-0.5">
-                  <label className="text-xs text-slate-500 font-medium">办结类型</label>
-                  <select className="h-6 px-2 border border-slate-300 rounded text-xs focus:border-blue-500 focus:outline-none text-slate-600">
+                  <label className="text-xs text-slate-500 font-medium font-sans">办结类型</label>
+                  <select className="h-6 px-2 border border-slate-300 rounded text-xs focus:border-blue-500 focus:outline-none text-slate-600 font-sans">
                     <option>请选择</option>
                   </select>
               </div>
               <div className="flex flex-col gap-0.5">
-                  <label className="text-xs text-slate-500 font-medium">是否入账</label>
-                  <select className="h-6 px-2 border border-slate-300 rounded text-xs focus:border-blue-500 focus:outline-none text-slate-600">
+                  <label className="text-xs text-slate-500 font-medium font-sans">是否入账</label>
+                  <select className="h-6 px-2 border border-slate-300 rounded text-xs focus:border-blue-500 focus:outline-none text-slate-600 font-sans">
                     <option>请选择</option>
                   </select>
               </div>
               <div className="flex flex-col gap-0.5">
-                  <label className="text-xs text-slate-500 font-medium">退款方式</label>
-                  <select className="h-6 px-2 border border-slate-300 rounded text-xs focus:border-blue-500 focus:outline-none text-slate-600">
+                  <label className="text-xs text-slate-500 font-medium font-sans">退款方式</label>
+                  <select className="h-6 px-2 border border-slate-300 rounded text-xs focus:border-blue-500 focus:outline-none text-slate-600 font-sans">
                     <option>请选择</option>
                   </select>
               </div>
               <div className="flex flex-col gap-0.5">
-                  <label className="text-xs text-slate-500 font-medium">状态</label>
-                  <select className="h-6 px-2 border border-slate-300 rounded text-xs focus:border-blue-500 focus:outline-none text-slate-600">
+                  <label className="text-xs text-slate-500 font-medium font-sans">状态</label>
+                  <select className="h-6 px-2 border border-slate-300 rounded text-xs focus:border-blue-500 focus:outline-none text-slate-600 font-sans">
                     <option>请选择</option>
                   </select>
               </div>
               <div className="flex flex-col gap-0.5">
-                  <label className="text-xs text-slate-500 font-medium">创建人</label>
-                  <input type="text" placeholder="请输入" className="h-6 px-2 border border-slate-300 rounded text-xs focus:border-blue-500 focus:outline-none" />
+                  <label className="text-xs text-slate-500 font-medium font-sans">创建人</label>
+                  <input type="text" placeholder="请输入" className="h-6 px-2 border border-slate-300 rounded text-xs focus:border-blue-500 focus:outline-none font-sans" />
               </div>
               <div className="flex flex-col gap-0.5 col-span-2">
-                   <label className="text-xs text-slate-500 font-medium">时间筛选</label>
+                   <label className="text-xs text-slate-500 font-medium font-sans">时间筛选</label>
                    <div className="flex items-center gap-0 border border-slate-300 rounded bg-white overflow-hidden h-6">
-                       <select className="h-full px-2 text-xs text-slate-500 font-medium border-r border-slate-200 bg-slate-50 focus:outline-none cursor-pointer hover:bg-slate-100">
+                       <select className="h-full px-2 text-xs text-slate-500 font-medium border-r border-slate-200 bg-slate-50 focus:outline-none cursor-pointer hover:bg-slate-100 font-sans">
                           <option>创建时间</option>
                           <option>付款时间</option>
                        </select>
                        <div className="flex items-center px-2 gap-2 flex-1">
                            <div className="relative flex-1">
-                              <input type="text" placeholder="开始日期" className="w-full text-xs outline-none placeholder:text-slate-400 text-center" />
+                              <input type="text" placeholder="开始日期" className="w-full text-xs outline-none placeholder:text-slate-400 text-center font-mono" />
                            </div>
                            <span className="text-slate-300">-</span>
                            <div className="relative flex-1">
-                              <input type="text" placeholder="结束日期" className="w-full text-xs outline-none placeholder:text-slate-400 text-center" />
+                              <input type="text" placeholder="结束日期" className="w-full text-xs outline-none placeholder:text-slate-400 text-center font-mono" />
                            </div>
                        </div>
                   </div>
               </div>
               <div className="flex items-end gap-2 col-span-2 lg:col-span-1">
-                  <button className="h-6 px-4 bg-blue-500 hover:bg-blue-600 text-white text-xs rounded transition-colors shadow-sm font-medium flex-1 flex items-center justify-center gap-1">
+                  <button className="h-6 px-4 bg-blue-500 hover:bg-blue-600 text-white text-xs rounded transition-colors shadow-sm font-medium flex-1 flex items-center justify-center gap-1 font-sans">
                       <Search size={14} /> 搜索
                   </button>
-                  <button className="h-6 px-4 bg-white text-slate-600 hover:text-blue-600 hover:border-blue-400 text-xs rounded transition-colors border border-slate-300 shadow-sm font-medium flex-1">
+                  <button className="h-6 px-4 bg-white text-slate-600 hover:text-blue-600 hover:border-blue-400 text-xs rounded transition-colors border border-slate-300 shadow-sm font-medium flex-1 font-sans">
                       重置
                   </button>
               </div>
@@ -451,7 +451,7 @@ const TooltipCell = ({ content }: { content: string }) => {
     <>
       <div 
         ref={triggerRef}
-        className="max-w-[120px] truncate cursor-help text-slate-600 hover:text-blue-600 transition-colors" 
+        className="max-w-[120px] truncate cursor-help text-slate-600 hover:text-blue-600 transition-colors font-sans" 
         onMouseEnter={handleMouseEnter} 
         onMouseLeave={() => setShow(false)}
       >
@@ -459,7 +459,7 @@ const TooltipCell = ({ content }: { content: string }) => {
       </div>
       {show && createPortal(
         <div 
-            className="fixed z-[9999] bg-slate-800 text-white text-xs p-3 rounded-lg shadow-xl max-w-xs break-words pointer-events-none transition-all duration-200 animate-in fade-in zoom-in-95"
+            className="fixed z-[9999] bg-slate-800 text-white text-xs p-3 rounded-lg shadow-xl max-w-xs break-words pointer-events-none transition-all duration-200 animate-in fade-in zoom-in-95 font-sans"
             style={{ top: coords.y - 8, left: coords.x, transform: 'translate(-50%, -100%)' }}
         >
           {content}
@@ -485,7 +485,7 @@ const StatusCell = ({ order }: { order: Order }) => {
 
   return (
     <div className="flex flex-col items-center justify-center h-full">
-      <span className={`px-2 py-0.5 rounded text-xs font-semibold whitespace-nowrap ${getStatusStyle(order.status)}`}>
+      <span className={`px-2 py-0.5 rounded text-xs font-semibold font-sans whitespace-nowrap ${getStatusStyle(order.status)}`}>
         {order.status}
       </span>
     </div>
@@ -497,14 +497,14 @@ const CompleteOrderModal = ({ isOpen, onClose, order }: { isOpen: boolean; onClo
   return createPortal(
     <div className="fixed inset-0 bg-black/60 z-[100] flex items-center justify-center backdrop-blur-sm animate-in fade-in duration-200">
        <div className="bg-white w-[500px] rounded-xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
-          <div className="bg-gradient-to-r from-green-500 to-emerald-600 p-6 text-white"><h3 className="text-xl font-bold">完成订单</h3></div>
+          <div className="bg-gradient-to-r from-green-500 to-emerald-600 p-6 text-white"><h3 className="text-xl font-bold font-sans">完成订单</h3></div>
           <div className="p-6 space-y-4">
-             <div className="flex justify-between text-sm"><span className="text-slate-500">应收金额</span><span className="font-bold text-lg text-emerald-600">¥{order.totalAmount}</span></div>
-             <input type="number" defaultValue={order.totalAmount} className="w-full border border-slate-300 rounded-lg p-2" />
+             <div className="flex justify-between text-sm"><span className="text-slate-500 font-sans">应收金额</span><span className="font-bold text-lg text-emerald-600 font-mono">¥{order.totalAmount}</span></div>
+             <input type="number" defaultValue={order.totalAmount} className="w-full border border-slate-300 rounded-lg p-2 font-mono" />
           </div>
           <div className="p-6 border-t bg-slate-50 flex justify-end gap-3">
-             <button onClick={onClose} className="px-4 py-2 text-slate-600">取消</button>
-             <button onClick={onClose} className="px-6 py-2 bg-green-600 text-white rounded-lg">确认完成</button>
+             <button onClick={onClose} className="px-4 py-2 text-slate-600 font-sans">取消</button>
+             <button onClick={onClose} className="px-6 py-2 bg-green-600 text-white rounded-lg font-sans">确认完成</button>
           </div>
        </div>
     </div>,
@@ -514,7 +514,7 @@ const CompleteOrderModal = ({ isOpen, onClose, order }: { isOpen: boolean; onClo
 
 const ActionCell = ({ order, onAction }: { order: Order; onAction: (action: string, id: number) => void }) => {
   return (
-    <div className="flex items-center justify-center gap-1">
+    <div className="flex items-center justify-center gap-1 font-sans">
         <button onClick={() => onAction('修改', order.id)} className="text-xs text-blue-500 hover:text-blue-700 whitespace-nowrap">修改</button>
         <button onClick={() => onAction('完结', order.id)} className="text-xs text-blue-500 hover:text-blue-700 whitespace-nowrap">完结</button>
         <button onClick={() => onAction('复制', order.id)} className="text-xs text-blue-500 hover:text-blue-700 whitespace-nowrap">复制</button>
@@ -618,7 +618,7 @@ const App = () => {
           <div className="overflow-x-auto flex-1 overflow-y-auto relative">
             <table className="w-full text-left border-collapse relative">
               <thead className="sticky top-0 z-40 shadow-sm">
-                <tr className="bg-slate-50 border-b-2 border-gray-300 text-xs font-bold uppercase text-slate-700 tracking-wider">
+                <tr className="bg-slate-50 border-b-2 border-gray-300 text-xs font-bold font-sans uppercase text-slate-700 tracking-wider">
                   <th className="px-3 py-2 whitespace-nowrap bg-slate-50 text-center sticky top-0 z-30">商城订单</th>
                   <th className="px-3 py-2 whitespace-nowrap bg-slate-50 sticky top-0 z-30 min-w-[180px]">工单号/订单号</th>
                   <th className="px-3 py-2 whitespace-nowrap bg-slate-50 sticky top-0 z-30">手机号</th>
@@ -658,54 +658,54 @@ const App = () => {
               <tbody className="divide-y divide-gray-300">
                 {currentData.map((order) => (
                   <tr key={order.id} className="bg-white even:bg-blue-50 hover:!bg-blue-100 transition-colors group text-xs border-b border-gray-300 last:border-0 align-middle">
-                    <td className="px-3 py-2 text-center text-slate-600">{order.isMallOrder ? '是' : '否'}</td>
+                    <td className="px-3 py-2 text-center text-slate-600 font-sans">{order.isMallOrder ? '是' : '否'}</td>
                     <td className="px-3 py-2">
                       <div className="flex flex-col gap-0.5">
                         <span className="font-bold text-slate-800 font-mono text-xs select-all">{order.orderNo}</span>
                         <div className="flex items-center gap-1">
                           <span className="text-slate-500 font-mono text-[10px] select-all">{order.originalOrderNo}</span>
-                          <span className="text-[10px] text-blue-500 hover:text-blue-700 cursor-pointer underline hover:no-underline whitespace-nowrap">跳转原始单详情</span>
+                          <span className="text-[10px] text-blue-500 hover:text-blue-700 cursor-pointer underline hover:no-underline whitespace-nowrap font-sans">跳转原始单详情</span>
                         </div>
                       </div>
                     </td>
                     <td className="px-3 py-2 text-slate-800 font-bold font-mono">{order.mobile}</td>
-                    <td className="px-3 py-2 text-slate-600 whitespace-nowrap">{order.serviceItem}</td>
-                    <td className="px-3 py-2 text-slate-600 whitespace-nowrap">{order.initiator}</td>
+                    <td className="px-3 py-2 text-slate-600 whitespace-nowrap font-sans">{order.serviceItem}</td>
+                    <td className="px-3 py-2 text-slate-600 whitespace-nowrap font-sans">{order.initiator}</td>
                     <td className="px-3 py-2 whitespace-nowrap">
                         <div className="flex flex-col">
-                            <span className="text-slate-800 font-medium">{order.orderTime}</span>
-                            <span className="text-slate-400 text-[10px] mt-0.5">{order.createTime}</span>
+                            <span className="text-slate-800 font-medium font-mono">{order.orderTime}</span>
+                            <span className="text-slate-400 text-[10px] mt-0.5 font-mono">{order.createTime}</span>
                         </div>
                     </td>
-                    <td className="px-3 py-2 text-slate-800 font-medium">{order.customerName}</td>
-                    <td className="px-3 py-2 text-center whitespace-nowrap"><span className="px-2 py-0.5 bg-slate-100 text-slate-500 rounded border border-slate-200">{order.source}</span></td>
+                    <td className="px-3 py-2 text-slate-800 font-medium font-sans">{order.customerName}</td>
+                    <td className="px-3 py-2 text-center whitespace-nowrap font-sans"><span className="px-2 py-0.5 bg-slate-100 text-slate-500 rounded border border-slate-200">{order.source}</span></td>
                     <td className="px-3 py-2 text-center"><StatusCell order={order} /></td>
                     <td className="px-3 py-2 text-center font-mono text-slate-700">{formatCurrency(order.cashierPaymentAmount)}</td>
-                    <td className="px-3 py-2 text-slate-600 max-w-[120px]"><TooltipCell content={order.customerRequest} /></td>
-                    <td className="px-3 py-2 text-slate-600 max-w-[120px] truncate" title={order.remark}>{order.remark || '-'}</td>
-                    <td className="px-3 py-2 text-slate-600 whitespace-nowrap">{order.recorderName}</td>
-                    <td className="px-3 py-2 text-slate-700 font-medium whitespace-nowrap">{order.masterName}</td>
+                    <td className="px-3 py-2 text-slate-600 max-w-[120px] font-sans"><TooltipCell content={order.customerRequest} /></td>
+                    <td className="px-3 py-2 text-slate-600 max-w-[120px] truncate font-sans" title={order.remark}>{order.remark || '-'}</td>
+                    <td className="px-3 py-2 text-slate-600 whitespace-nowrap font-sans">{order.recorderName}</td>
+                    <td className="px-3 py-2 text-slate-700 font-medium whitespace-nowrap font-sans">{order.masterName}</td>
                     <td className="px-3 py-2 text-center font-mono text-orange-600 font-bold">{formatCurrency(order.revenue)}</td>
-                    <td className="px-3 py-2 text-slate-600">{order.responsibleParty}</td>
+                    <td className="px-3 py-2 text-slate-600 font-sans">{order.responsibleParty}</td>
                     <td className="px-3 py-2 text-center font-mono text-slate-600">{formatCurrency(order.totalRefund)}</td>
-                    <td className="px-3 py-2 text-center text-slate-500">{order.refundMethod}</td>
+                    <td className="px-3 py-2 text-center text-slate-500 font-sans">{order.refundMethod}</td>
                     <td className="px-3 py-2 text-center font-mono text-slate-600">{formatCurrency(order.masterRefund)}</td>
-                    <td className="px-3 py-2 text-center text-slate-600">{order.entryStatus}</td>
+                    <td className="px-3 py-2 text-center text-slate-600 font-sans">{order.entryStatus}</td>
                     <td className="px-3 py-2 text-center font-mono text-slate-600">{formatCurrency(order.companyRefund)}</td>
                     <td className="px-3 py-2 text-center font-mono text-slate-500">{formatCurrency(order.masterCost)}</td>
                     <td className="px-3 py-2"><ImageState hasImage={order.customerPaymentCode} /></td>
                     <td className="px-3 py-2"><ImageState hasImage={order.invalidVoucher} /></td>
                     <td className="px-3 py-2"><ImageState hasImage={order.paymentVoucher} /></td>
-                    <td className="px-3 py-2 text-slate-600">{order.completerName}</td>
-                    <td className="px-3 py-2 text-slate-600">{order.completionType}</td>
-                    <td className="px-3 py-2 text-slate-500 whitespace-nowrap">{order.completionTime}</td>
-                    <td className="px-3 py-2 text-slate-500 max-w-[150px] truncate" title={order.completionNote}>{order.completionNote || '-'}</td>
-                    <td className="px-3 py-2 text-slate-500">{order.voiderName}</td>
-                    <td className="px-3 py-2 text-slate-500">{order.voidReason}</td>
+                    <td className="px-3 py-2 text-slate-600 font-sans">{order.completerName}</td>
+                    <td className="px-3 py-2 text-slate-600 font-sans">{order.completionType}</td>
+                    <td className="px-3 py-2 text-slate-500 whitespace-nowrap font-mono">{order.completionTime}</td>
+                    <td className="px-3 py-2 text-slate-500 max-w-[150px] truncate font-sans" title={order.completionNote}>{order.completionNote || '-'}</td>
+                    <td className="px-3 py-2 text-slate-500 font-sans">{order.voiderName}</td>
+                    <td className="px-3 py-2 text-slate-500 font-sans">{order.voidReason}</td>
                     <td className="px-2 py-2 sticky-col sticky-right-contact sticky-bg-solid border-l border-gray-200">
                       <div className="grid grid-cols-2 gap-2 w-full">
                         {['客服', '派单员', '运营', '群聊'].map(label => (
-                          <button key={label} className="w-full border border-slate-300 rounded px-1 py-1.5 text-[11px] text-slate-600 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-400 bg-white shadow-sm transition-all whitespace-nowrap flex items-center justify-center">
+                          <button key={label} className="w-full border border-slate-300 rounded px-1 py-1.5 text-[11px] text-slate-600 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-400 bg-white shadow-sm transition-all whitespace-nowrap flex items-center justify-center font-sans">
                             {label}
                           </button>
                         ))}
@@ -713,11 +713,11 @@ const App = () => {
                     </td>
                     <td className="px-3 py-2 text-center sticky-col sticky-right-alert align-middle">
                       {[OrderStatus.Completed, OrderStatus.Void, OrderStatus.Returned].includes(order.status) ? (
-                        <span className="text-white/70 font-medium">/</span>
+                        <span className="text-white/70 font-medium font-mono">/</span>
                       ) : (
                         <div className="flex items-center justify-center gap-1 h-8">
                             <span className="text-base font-mono font-bold text-white">{order.remainingTime}</span>
-                            {order.overtimeAlert > 0 && <span className="ml-1 px-1 border border-yellow-300 rounded text-[13px] font-extrabold text-yellow-300 animate-pulse">+{order.overtimeAlert}</span>}
+                            {order.overtimeAlert > 0 && <span className="ml-1 px-1 border border-yellow-300 rounded text-[13px] font-extrabold text-yellow-300 animate-pulse font-mono">+{order.overtimeAlert}</span>}
                         </div>
                       )}
                     </td>
@@ -731,8 +731,8 @@ const App = () => {
           </div>
           <div className="bg-white px-4 py-3 border-t border-gray-200 flex justify-center items-center mt-auto">
              <div className="flex items-center gap-3 select-none">
-                <span className="text-sm text-slate-500">共 {totalItems} 条</span>
-                <select value={pageSize} onChange={(e) => { setPageSize(Number(e.target.value)); setCurrentPage(1); }} className="border border-slate-300 rounded px-2 py-1 text-sm text-slate-600 outline-none focus:border-blue-500 cursor-pointer hover:border-blue-400">
+                <span className="text-sm text-slate-500 font-sans">共 <span className="font-mono">{totalItems}</span> 条</span>
+                <select value={pageSize} onChange={(e) => { setPageSize(Number(e.target.value)); setCurrentPage(1); }} className="border border-slate-300 rounded px-2 py-1 text-sm text-slate-600 outline-none focus:border-blue-500 cursor-pointer hover:border-blue-400 font-sans">
                     <option value={10}>10条/页</option>
                     <option value={20}>20条/页</option>
                     <option value={50}>50条/页</option>
@@ -741,21 +741,21 @@ const App = () => {
                 <div className="flex items-center gap-1">
                     <button onClick={handlePrevPage} disabled={currentPage === 1} className="w-8 h-8 flex items-center justify-center border border-slate-300 rounded bg-white text-slate-500 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"><ChevronLeft size={16} /></button>
                     {paginationRange.map((page, idx) => (
-                        page === '...' ? <span key={`dots-${idx}`} className="w-8 h-8 flex items-center justify-center text-slate-400 font-bold">···</span> : 
-                        <button key={page} onClick={() => handlePageChange(page as number)} className={`w-8 h-8 flex items-center justify-center border rounded text-sm font-medium transition-colors ${currentPage === page ? 'bg-blue-600 border-blue-600 text-white' : 'border-slate-300 bg-white text-slate-600 hover:border-blue-500 hover:text-blue-500'}`}>{page}</button>
+                        page === '...' ? <span key={`dots-${idx}`} className="w-8 h-8 flex items-center justify-center text-slate-400 font-bold font-mono">···</span> : 
+                        <button key={page} onClick={() => handlePageChange(page as number)} className={`w-8 h-8 flex items-center justify-center border rounded text-sm font-medium transition-colors font-mono ${currentPage === page ? 'bg-blue-600 border-blue-600 text-white' : 'border-slate-300 bg-white text-slate-600 hover:border-blue-500 hover:text-blue-500'}`}>{page}</button>
                     ))}
                     <button onClick={handleNextPage} disabled={currentPage === totalPages} className="w-8 h-8 flex items-center justify-center border border-slate-300 rounded bg-white text-slate-500 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"><ChevronRight size={16} /></button>
                 </div>
-                <div className="flex items-center gap-2 text-sm text-slate-500 ml-2">
+                <div className="flex items-center gap-2 text-sm text-slate-500 ml-2 font-sans">
                     <span>前往</span>
-                    <input type="number" min={1} max={totalPages} defaultValue={currentPage} onKeyDown={(e) => { if (e.key === 'Enter') { const val = parseInt(e.currentTarget.value); if (val >= 1 && val <= totalPages) setCurrentPage(val); } }} onBlur={(e) => { const val = parseInt(e.target.value); if (val >= 1 && val <= totalPages) setCurrentPage(val); else e.target.value = currentPage.toString(); }} className="w-12 h-8 border border-slate-300 rounded text-center outline-none focus:border-blue-500 text-slate-700" />
+                    <input type="number" min={1} max={totalPages} defaultValue={currentPage} onKeyDown={(e) => { if (e.key === 'Enter') { const val = parseInt(e.currentTarget.value); if (val >= 1 && val <= totalPages) setCurrentPage(val); } }} onBlur={(e) => { const val = parseInt(e.target.value); if (val >= 1 && val <= totalPages) setCurrentPage(val); else e.target.value = currentPage.toString(); }} className="w-12 h-8 border border-slate-300 rounded text-center outline-none focus:border-blue-500 text-slate-700 font-mono" />
                     <span>页</span>
                 </div>
             </div>
           </div>
         </div>
       </div>
-      <button onClick={() => setShowSuspendedOnly(!showSuspendedOnly)} className={`fixed bottom-6 right-6 w-20 h-20 rounded-full shadow-xl flex flex-col items-center justify-center text-white transition-all z-[9999] active:scale-95 ${showSuspendedOnly ? 'bg-orange-600 ring-4 ring-orange-200 scale-110' : 'bg-orange-500 hover:bg-orange-600 hover:scale-105'}`} title={showSuspendedOnly ? "显示全部订单" : "只显示挂起订单"}><span className="text-[10px] font-medium opacity-90 mb-0.5 whitespace-nowrap">已挂起数</span><span className="text-2xl font-bold leading-none">{suspendedCount}</span></button>
+      <button onClick={() => setShowSuspendedOnly(!showSuspendedOnly)} className={`fixed bottom-6 right-6 w-20 h-20 rounded-full shadow-xl flex flex-col items-center justify-center text-white transition-all z-[9999] active:scale-95 ${showSuspendedOnly ? 'bg-orange-600 ring-4 ring-orange-200 scale-110' : 'bg-orange-500 hover:bg-orange-600 hover:scale-105'}`} title={showSuspendedOnly ? "显示全部订单" : "只显示挂起订单"}><span className="text-[10px] font-medium opacity-90 mb-0.5 whitespace-nowrap font-sans">已挂起数</span><span className="text-2xl font-bold leading-none font-mono">{suspendedCount}</span></button>
       <CompleteOrderModal isOpen={completeModalOpen} onClose={() => setCompleteModalOpen(false)} order={currentOrder} />
     </div>
   );
